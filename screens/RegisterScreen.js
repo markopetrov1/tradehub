@@ -1,32 +1,38 @@
 import { useEffect, useState } from "react";
-import { useNavigation } from '@react-navigation/native';
-import { Image, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import {
+  Image,
+  KeyboardAvoidingView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { colors } from "../themes/colors";
-import LottieView from 'lottie-react-native';
+import LottieView from "lottie-react-native";
 import { BackButton } from "../components/BackButton";
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 
 export const RegisterScreen = ({ navigation }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [emailError, setEmailError] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
   };
-
 
   const toggleShowConfirmPassword = () => {
     setShowConfirmPassword(!showConfirmPassword);
   };
 
-  const [errorMsg, setErrorMsg] = useState(null)
+  const [errorMsg, setErrorMsg] = useState(null);
 
   const handleRegister = () => {
     setEmailError(false);
@@ -270,4 +276,3 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
 });
-
