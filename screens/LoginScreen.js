@@ -4,6 +4,7 @@ import { Image, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpac
 import { colors } from "../themes/colors";
 import LottieView from 'lottie-react-native';
 import { BackButton } from "../components/BackButton";
+import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 
 
 export const LoginScreen = ({ navigation }) => {
@@ -12,6 +13,14 @@ export const LoginScreen = ({ navigation }) => {
     const [password, setPassword] = useState('');
     const [emailError, setEmailError] = useState(false);
     const [passwordError, setPasswordError] = useState(false);
+
+    const [showPassword, setShowPassword] = useState(false); 
+  
+    
+    const toggleShowPassword = () => { 
+        setShowPassword(!showPassword); 
+    }; 
+  
 
 
     const [ errorMsg, setErrorMsg ] = useState(null)
@@ -63,6 +72,7 @@ export const LoginScreen = ({ navigation }) => {
                 <View style={[styles.inputContainer,{marginTop:30, marginBottom:20}]}>
                     <Text style={styles.label}>Email</Text>
                     <View style={[styles.inputSubContainer, { borderColor: emailError ? 'red' : 'gray' }]}>
+                    <Ionicons name="mail-outline" size={24} color="gray" style={styles.inputIcon} />
                     <TextInput
                         style={styles.input}
                         placeholder="Email"
@@ -76,13 +86,15 @@ export const LoginScreen = ({ navigation }) => {
                 <View style={styles.inputContainer}>
                     <Text style={styles.label}>Password</Text>
                     <View style={[styles.inputSubContainer, { borderColor: passwordError ? 'red' : 'gray' }]}>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Password"
-                        value={password}
-                        onChangeText={setPassword}
-                        secureTextEntry
-                    />
+                      <Ionicons name="lock-closed-outline" size={24} color="gray" style={styles.inputIcon} />
+                      <TextInput
+                          style={styles.input}
+                          placeholder="Password"
+                          value={password}
+                          onChangeText={setPassword}
+                          secureTextEntry={!showPassword} 
+                      />
+                      <MaterialCommunityIcons name={showPassword ? 'eye-off' : 'eye'} size={24} color="#aaa" style={{marginRight:10}} onPress={toggleShowPassword}/> 
                     </View>
                     <Text style={styles.forgotPasswordText}>Forgot password?</Text>
                 </View>
@@ -132,7 +144,7 @@ const styles = StyleSheet.create({
         borderRadius: 15,
       },
       inputIcon: {
-        marginRight: 10,
+        marginLeft: 10,
       },
       input: {
         flex: 1,
