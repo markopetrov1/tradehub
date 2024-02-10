@@ -28,7 +28,7 @@ export const LoginNavigator = () => {
       />
       <Stack.Screen
         name="RegisterScreen"
-        options={{ headerBackgroundContainerStyle: {backgroundColor:'#f3f3f3', alignItems:'flex-end'}}}
+        options={{ header: () => null }}
         component={RegisterScreen}
       />
     </Stack.Navigator>
