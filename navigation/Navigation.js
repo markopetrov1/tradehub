@@ -12,10 +12,21 @@ export const Navigation = () => {
 
   const dispatch = useDispatch();
 
-  onAuthStateChanged(auth, (user) => {
-    console.log("GOT USER ", user);
-    dispatch(setUser(user));
-  });
+  useEffect(() => {
+    onAuthStateChanged(auth, (u) => {
+      console.log("GOT USER ", u);
+      if (u) {
+        dispatch(
+          setUser({
+            id: u.uid,
+            email: u.email,
+          })
+        );
+      } else {
+        dispatch(setUser(null));
+      }
+    });
+  }, []);
 
   return (
     <NavigationContainer>

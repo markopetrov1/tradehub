@@ -14,10 +14,11 @@ import LottieView from "lottie-react-native";
 import { BackButton } from "../components/BackButton";
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../config/firebase";
+import { auth, database, usersRef } from "../config/firebase";
 import { useDispatch, useSelector } from "react-redux";
 import { setUserLoading } from "../redux/slices/user";
 import { Loading } from "../components/Loading";
+import { addDoc, setDoc } from "firebase/firestore";
 
 export const RegisterScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
@@ -79,11 +80,21 @@ export const RegisterScreen = ({ navigation }) => {
       return;
     }
 
-    //   TODO: register user
-
     try {
       dispatch(setUserLoading(true));
-      await createUserWithEmailAndPassword(auth, email, password);
+      const { user } = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      await usersRef.doc(user.uid).set({
+        firstName: "",
+        lastName: "",
+        email: email,
+        phoneNumber: "",
+        location: "",
+        // Add other user data if needed
+      });
       dispatch(setUserLoading(false));
     } catch (e) {
       setErrorMsg("Email already exists");
@@ -209,7 +220,7 @@ export const RegisterScreen = ({ navigation }) => {
         <View
           style={{
             paddingHorizontal: 60,
-            marginTop: 20,
+            marginTop: 10,
             flexDirection: "row",
             justifyContent: "center",
           }}
@@ -223,7 +234,7 @@ export const RegisterScreen = ({ navigation }) => {
             flex: 1,
             flexDirection: "row",
             justifyContent: "space-evenly",
-            marginTop: 20,
+            marginTop: 10,
           }}
         >
           <TouchableOpacity>

@@ -12,17 +12,17 @@ export const LoginNavigator = () => {
     <Stack.Navigator>
       <Stack.Screen
         name="WelcomeScreen"
-        options={{ header: () => null }}
+        options={{ header: () => null, presentation: "modal" }}
         component={WelcomeScreen}
       />
       <Stack.Screen
         name="LoginScreen"
-        options={{ header: () => null }}
+        options={{ header: () => null, presentation: "modal" }}
         component={LoginScreen}
       />
       <Stack.Screen
         name="RegisterScreen"
-        options={{ header: () => null }}
+        options={{ header: () => null, presentation: "modal" }}
         component={RegisterScreen}
       />
     </Stack.Navigator>
