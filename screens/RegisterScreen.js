@@ -15,6 +15,9 @@ import { BackButton } from "../components/BackButton";
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../config/firebase";
+import { useDispatch, useSelector } from "react-redux";
+import { setUserLoading } from "../redux/slices/user";
+import { Loading } from "../components/Loading";
 
 export const RegisterScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
@@ -25,6 +28,9 @@ export const RegisterScreen = ({ navigation }) => {
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const { userLoading } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
 
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
@@ -75,7 +81,14 @@ export const RegisterScreen = ({ navigation }) => {
 
     //   TODO: register user
 
-    await createUserWithEmailAndPassword(auth, email, password);
+    try {
+      dispatch(setUserLoading(true));
+      await createUserWithEmailAndPassword(auth, email, password);
+      dispatch(setUserLoading(false));
+    } catch (e) {
+      setErrorMsg("Email already exists");
+      dispatch(setUserLoading(false));
+    }
   };
 
   return (
@@ -183,12 +196,16 @@ export const RegisterScreen = ({ navigation }) => {
           </View>
         </View>
         {errorMsg && <Text style={styles.errorText}>{errorMsg}</Text>}
-        <TouchableOpacity
-          style={[styles.submitButton, { marginBottom: 10 }]}
-          onPress={handleRegister}
-        >
-          <Text style={styles.submitButtonText}>Sign up</Text>
-        </TouchableOpacity>
+        {userLoading ? (
+          <Loading />
+        ) : (
+          <TouchableOpacity
+            style={[styles.submitButton, { marginBottom: 10 }]}
+            onPress={handleRegister}
+          >
+            <Text style={styles.submitButtonText}>Sign up</Text>
+          </TouchableOpacity>
+        )}
         <View
           style={{
             paddingHorizontal: 60,

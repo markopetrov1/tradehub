@@ -15,6 +15,9 @@ import { BackButton } from "../components/BackButton";
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../config/firebase";
+import { useSelector, useDispatch } from "react-redux";
+import { Loading } from "../components/Loading";
+import { setUserLoading } from "../redux/slices/user";
 
 export const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
@@ -23,6 +26,10 @@ export const LoginScreen = ({ navigation }) => {
   const [passwordError, setPasswordError] = useState(false);
 
   const [showPassword, setShowPassword] = useState(false);
+
+  const { userLoading } = useSelector((state) => state.user);
+
+  const dispatch = useDispatch();
 
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
@@ -42,7 +49,14 @@ export const LoginScreen = ({ navigation }) => {
       return;
     }
 
-    await signInWithEmailAndPassword(auth, email, password);
+    try {
+      dispatch(setUserLoading(true));
+      await signInWithEmailAndPassword(auth, email, password);
+      dispatch(setUserLoading(false));
+    } catch (e) {
+      setErrorMsg("Invalid email or password");
+      dispatch(setUserLoading(false));
+    }
   };
 
   return (
@@ -120,12 +134,16 @@ export const LoginScreen = ({ navigation }) => {
           <Text style={styles.forgotPasswordText}>Forgot password?</Text>
         </View>
         {errorMsg && <Text style={styles.errorText}>{errorMsg}</Text>}
-        <TouchableOpacity
-          style={[styles.submitButton, { marginBottom: 10 }]}
-          onPress={handleSignIn}
-        >
-          <Text style={styles.submitButtonText}>Login</Text>
-        </TouchableOpacity>
+        {userLoading ? (
+          <Loading />
+        ) : (
+          <TouchableOpacity
+            style={[styles.submitButton, { marginBottom: 10 }]}
+            onPress={handleSignIn}
+          >
+            <Text style={styles.submitButtonText}>Login</Text>
+          </TouchableOpacity>
+        )}
         <View
           style={{
             paddingHorizontal: 60,
