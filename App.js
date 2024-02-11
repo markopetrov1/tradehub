@@ -1,21 +1,15 @@
-import { StatusBar } from 'expo-status-bar';
-import { useTranslation } from 'react-i18next';
-import { StyleSheet, Text, View } from 'react-native';
-import './i18n/i18.config';
-import { Navigation } from './navigation/Navigation';
-
+import { StatusBar } from "expo-status-bar";
+import { useTranslation } from "react-i18next";
+import { StyleSheet, Text, View } from "react-native";
+import "./i18n/i18.config";
+import { Navigation } from "./navigation/Navigation";
+import { Provider } from "react-redux";
+import { store } from "./redux/store";
 
 export default function App() {
   return (
-    <Navigation/>
+    <Provider store={store}>
+      <Navigation />
+    </Provider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

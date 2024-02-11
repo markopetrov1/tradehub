@@ -8,13 +8,8 @@ import { WelcomeScreen } from "../screens/WelcomeScreen";
 const Stack = createStackNavigator();
 
 export const LoginNavigator = () => {
-  const screenOptions = {
-    headerTitle: " ",
-    headerBackTitle: " ",
-  };
-
   return (
-    <Stack.Navigator screenOptions={screenOptions}>
+    <Stack.Navigator>
       <Stack.Screen
         name="WelcomeScreen"
         options={{ header: () => null }}

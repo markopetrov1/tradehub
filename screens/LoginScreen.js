@@ -13,6 +13,8 @@ import { colors } from "../themes/colors";
 import LottieView from "lottie-react-native";
 import { BackButton } from "../components/BackButton";
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../config/firebase";
 
 export const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
@@ -28,29 +30,19 @@ export const LoginScreen = ({ navigation }) => {
 
   const [errorMsg, setErrorMsg] = useState(null);
 
-  const handleSignIn = () => {
+  const handleSignIn = async () => {
     setEmailError(false);
     setPasswordError(false);
     setErrorMsg(null);
 
-    if (!email) {
-      setEmailError(true);
-      setErrorMsg("Email is required");
-    }
-    if (!password) {
-      setPasswordError(true);
-      setErrorMsg("Password is required");
-    }
-
-    if (!email && !password) {
-      setErrorMsg("Email and password are required");
-    }
-
     if (!email || !password) {
+      setEmailError(true);
+      setPasswordError(true);
+      setErrorMsg("All fields are required!");
       return;
     }
 
-    //   TODO: authenticate user
+    await signInWithEmailAndPassword(auth, email, password);
   };
 
   return (

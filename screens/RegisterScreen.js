@@ -13,6 +13,8 @@ import { colors } from "../themes/colors";
 import LottieView from "lottie-react-native";
 import { BackButton } from "../components/BackButton";
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../config/firebase";
 
 export const RegisterScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
@@ -34,29 +36,46 @@ export const RegisterScreen = ({ navigation }) => {
 
   const [errorMsg, setErrorMsg] = useState(null);
 
-  const handleRegister = () => {
+  const isValidEmail = () => {
+    // Simple email validation regex
+    const emailPattern = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+    return emailPattern.test(email);
+  };
+
+  const handleRegister = async () => {
     setEmailError(false);
     setPasswordError(false);
     setErrorMsg(null);
 
-    if (!email) {
+    if (!email || !password || !confirmPassword) {
       setEmailError(true);
-      setErrorMsg("Email is required");
-    }
-    if (!password) {
       setPasswordError(true);
-      setErrorMsg("Password is required");
+      setErrorMsg("All fields are required");
+      return;
     }
 
-    if (!email && !password) {
-      setErrorMsg("Email and password are required");
+    if (!isValidEmail()) {
+      setEmailError(true);
+      setErrorMsg("Invalid email address");
+      return;
     }
 
-    if (!email || !password) {
+    if (password.length < 8) {
+      setPasswordError(true);
+      setErrorMsg("Password is too short");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setErrorMsg("Passwords don't match");
+      passwordMatch = false;
+      setPasswordError(true);
       return;
     }
 
     //   TODO: register user
+
+    await createUserWithEmailAndPassword(auth, email, password);
   };
 
   return (
@@ -168,7 +187,7 @@ export const RegisterScreen = ({ navigation }) => {
           style={[styles.submitButton, { marginBottom: 10 }]}
           onPress={handleRegister}
         >
-          <Text style={styles.submitButtonText}>Login</Text>
+          <Text style={styles.submitButtonText}>Sign up</Text>
         </TouchableOpacity>
         <View
           style={{
