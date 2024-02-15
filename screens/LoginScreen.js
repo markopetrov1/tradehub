@@ -45,7 +45,7 @@ export const LoginScreen = ({ navigation }) => {
     if (!email || !password) {
       setEmailError(true);
       setPasswordError(true);
-      setErrorMsg("All fields are required!");
+      setErrorMsg("All fields are required");
       return;
     }
 
@@ -131,7 +131,13 @@ export const LoginScreen = ({ navigation }) => {
               onPress={toggleShowPassword}
             />
           </View>
-          <Text style={styles.forgotPasswordText}>Forgot password?</Text>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate("ResetPasswordScreen");
+            }}
+          >
+            <Text style={styles.forgotPasswordText}>Forgot password?</Text>
+          </TouchableOpacity>
         </View>
         {errorMsg && <Text style={styles.errorText}>{errorMsg}</Text>}
         {userLoading ? (

@@ -61,7 +61,7 @@ export const ResetPasswordScreen = ({ navigation }) => {
             marginLeft: 35,
           }}
         >
-          Forgot password
+          Reset password
         </Text>
       </View>
       <View style={{ flex: 1 }}>
