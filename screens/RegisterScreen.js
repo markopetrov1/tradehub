@@ -13,12 +13,11 @@ import { colors } from "../themes/colors";
 import LottieView from "lottie-react-native";
 import { BackButton } from "../components/BackButton";
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth, database, usersRef } from "../config/firebase";
 import { useDispatch, useSelector } from "react-redux";
 import { setUserLoading } from "../redux/slices/user";
 import { Loading } from "../components/Loading";
-import { addDoc, setDoc } from "firebase/firestore";
+import { registerUser } from "../utilities/auth";
+import { validateEmail } from "../utilities/validation";
 
 export const RegisterScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
@@ -43,12 +42,6 @@ export const RegisterScreen = ({ navigation }) => {
 
   const [errorMsg, setErrorMsg] = useState(null);
 
-  const isValidEmail = () => {
-    // Simple email validation regex
-    const emailPattern = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
-    return emailPattern.test(email);
-  };
-
   const handleRegister = async () => {
     setEmailError(false);
     setPasswordError(false);
@@ -61,7 +54,7 @@ export const RegisterScreen = ({ navigation }) => {
       return;
     }
 
-    if (!isValidEmail()) {
+    if (!validateEmail(email)) {
       setEmailError(true);
       setErrorMsg("Invalid email address");
       return;
@@ -80,26 +73,15 @@ export const RegisterScreen = ({ navigation }) => {
       return;
     }
 
-    try {
-      dispatch(setUserLoading(true));
-      const { user } = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      await usersRef.doc(user.uid).set({
-        firstName: "",
-        lastName: "",
-        email: email,
-        phoneNumber: "",
-        location: "",
-        // Add other user data if needed
-      });
-      dispatch(setUserLoading(false));
-    } catch (e) {
+    dispatch(setUserLoading(true));
+
+    const status = await registerUser(email, password);
+
+    if (!status) {
       setErrorMsg("Email already exists");
-      dispatch(setUserLoading(false));
     }
+
+    dispatch(setUserLoading(false));
   };
 
   return (
@@ -120,7 +102,7 @@ export const RegisterScreen = ({ navigation }) => {
 
       <View style={styles.contentContainer}>
         <View
-          style={[styles.inputContainer, { marginTop: 30, marginBottom: 10 }]}
+          style={[styles.inputContainer, { marginTop: 60, marginBottom: 10 }]}
         >
           <Text style={styles.label}>Email</Text>
           <View
@@ -217,36 +199,6 @@ export const RegisterScreen = ({ navigation }) => {
             <Text style={styles.submitButtonText}>Sign up</Text>
           </TouchableOpacity>
         )}
-        <View
-          style={{
-            paddingHorizontal: 60,
-            marginTop: 10,
-            flexDirection: "row",
-            justifyContent: "center",
-          }}
-        >
-          <View style={styles.line}></View>
-          <Text style={{ fontSize: 18 }}>Or</Text>
-          <View style={styles.line}></View>
-        </View>
-        <View
-          style={{
-            flex: 1,
-            flexDirection: "row",
-            justifyContent: "space-evenly",
-            marginTop: 10,
-          }}
-        >
-          <TouchableOpacity>
-            <Image source={require("../assets/icons/google.png")} />
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Image source={require("../assets/icons/apple.png")} />
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Image source={require("../assets/icons/facebook.png")} />
-          </TouchableOpacity>
-        </View>
       </View>
     </KeyboardAvoidingView>
   );

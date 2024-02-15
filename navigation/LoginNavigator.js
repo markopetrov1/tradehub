@@ -4,6 +4,7 @@ import { useNavigation } from "@react-navigation/native";
 import { RegisterScreen } from "../screens/RegisterScreen";
 import { LoginScreen } from "../screens/LoginScreen";
 import { WelcomeScreen } from "../screens/WelcomeScreen";
+import { ResetPasswordScreen } from "../screens/ResetPasswordScreen";
 
 const Stack = createStackNavigator();
 
@@ -24,6 +25,11 @@ export const LoginNavigator = () => {
         name="RegisterScreen"
         options={{ header: () => null, presentation: "modal" }}
         component={RegisterScreen}
+      />
+      <Stack.Screen
+        name="ResetPasswordScreen"
+        options={{ header: () => null, presentation: "modal" }}
+        component={ResetPasswordScreen}
       />
     </Stack.Navigator>
   );
