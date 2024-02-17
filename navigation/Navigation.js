@@ -6,6 +6,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { onAuthStateChanged } from "firebase/auth";
 import { setUser } from "../redux/slices/user";
 import { auth } from "../config/firebase";
+import { getCurrentUser } from "../utilities/auth";
 
 export const Navigation = () => {
   const { user } = useSelector((state) => state.user);
@@ -14,14 +15,14 @@ export const Navigation = () => {
 
   useEffect(() => {
     onAuthStateChanged(auth, (u) => {
-      console.log("GOT USER ", u);
       if (u) {
-        dispatch(
-          setUser({
-            id: u.uid,
-            email: u.email,
+        getCurrentUser()
+          .then((response) => {
+            dispatch(setUser(response));
           })
-        );
+          .catch((error) => {
+            console.log(error);
+          });
       } else {
         dispatch(setUser(null));
       }
