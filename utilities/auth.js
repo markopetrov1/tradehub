@@ -40,6 +40,7 @@ export const registerUser = async (email, password) => {
       phoneNumber: "",
       city: "",
       country: "",
+      profilePic: "",
     };
 
     await setDoc(newUserDocument, userData);

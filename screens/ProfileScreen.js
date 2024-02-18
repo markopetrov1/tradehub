@@ -19,6 +19,7 @@ import {
 import { getCurrentUser } from "../utilities/auth";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { getStorage } from "firebase/storage";
 
 export const ProfileScreen = ({ navigation }) => {
   const { user } = useSelector((state) => state.user);
@@ -82,7 +83,7 @@ const styles = StyleSheet.create({
   },
   profileIcon: {
     alignSelf: "center",
-    borderWidth: 1,
+    borderWidth: 3,
     borderColor: "white",
     borderRadius: 15,
     padding: 20,
