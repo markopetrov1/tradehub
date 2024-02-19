@@ -19,7 +19,7 @@ import {
 import { getCurrentUser } from "../utilities/auth";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { getStorage } from "firebase/storage";
+import LottieView from "lottie-react-native";
 
 export const ProfileScreen = ({ navigation }) => {
   const { user } = useSelector((state) => state.user);
@@ -59,7 +59,58 @@ export const ProfileScreen = ({ navigation }) => {
         </TouchableOpacity>
       </View>
 
-      <View style={styles.contentContainer}></View>
+      <View style={styles.contentContainer}>
+        {/* <LottieView
+          style={{
+            width: 160,
+            height: 280,
+            alignSelf: "center",
+          }}
+          key="animation"
+          resizeMode="cover"
+          autoPlay
+          source={require("../assets/animations/no-data-lottie.json")}
+        /> */}
+
+        <View
+          style={{
+            alignSelf: "center",
+            justifyContent: "flex-end",
+            flex: 1,
+            paddingTop: 50,
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 22,
+              backgroundColor: colors.bg.secondary,
+              color: "white",
+              padding: 10,
+              borderRadius: 10,
+              overflow: "hidden",
+            }}
+          >
+            No items yet
+          </Text>
+        </View>
+        <View
+          style={{ flex: 1, flexDirection: "row", justifyContent: "center" }}
+        >
+          <LottieView
+            style={{
+              width: 75,
+              height: 150,
+              alignSelf: "flex-end",
+              marginBottom: 10,
+              transform: [{ rotate: "15deg" }],
+            }}
+            key="animation"
+            resizeMode="cover"
+            autoPlay
+            source={require("../assets/animations/arrow-lottie.json")}
+          />
+        </View>
+      </View>
     </View>
   );
 };
