@@ -20,9 +20,11 @@ import { getCurrentUser } from "../utilities/auth";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import LottieView from "lottie-react-native";
+import { Loading } from "../components/Loading";
 
 export const ProfileScreen = ({ navigation }) => {
   const { user } = useSelector((state) => state.user);
+  const [loading, setLoading] = useState(false);
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -36,12 +38,32 @@ export const ProfileScreen = ({ navigation }) => {
         </TouchableOpacity>
       </View>
       <View style={styles.profileIconWrapper}>
-        <FontAwesome5
-          style={styles.profileIcon}
-          name="user-alt"
-          size={80}
-          color="#f3f3f3"
-        />
+        {loading && (
+          <View
+            style={{ position: "absolute", top: 50, left: 180, zIndex: 100 }}
+          >
+            <Loading />
+          </View>
+        )}
+        {user?.profilePic ? (
+          <Image
+            style={styles.profileIcon}
+            source={{ uri: user?.profilePic }}
+            onLoadStart={() => {
+              setLoading(true);
+            }}
+            onLoadEnd={() => {
+              setLoading(false);
+            }}
+          />
+        ) : (
+          <FontAwesome5
+            style={styles.profileIcon}
+            name="user-alt"
+            size={80}
+            color="#f3f3f3"
+          />
+        )}
       </View>
       <View style={{ flex: 1, alignContent: "center" }}>
         {user && (
@@ -138,6 +160,9 @@ const styles = StyleSheet.create({
     borderColor: "white",
     borderRadius: 15,
     padding: 20,
+    width: 127,
+    height: 127,
+    backgroundColor: "#f3f3f3",
   },
   profileIconWrapper: {
     justifyContent: "center",

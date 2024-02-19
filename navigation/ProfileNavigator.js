@@ -16,7 +16,7 @@ export const ProfileNavigator = () => {
       />
       <Stack.Screen
         name="EditProfileScreen"
-        options={{ header: () => null, presentation: "modal" }}
+        options={{ header: () => null }}
         component={EditProfileScreen}
       />
     </Stack.Navigator>

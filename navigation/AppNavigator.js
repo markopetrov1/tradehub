@@ -42,13 +42,7 @@ const createScreenOptions = ({ route }) => {
 };
 
 export const AppNavigator = () => (
-  <Tab.Navigator
-    screenOptions={createScreenOptions}
-    tabBarOptions={{
-      activeTintColor: colors.brand.primary,
-      inactiveTintColor: colors.brand.muted,
-    }}
-  >
+  <Tab.Navigator screenOptions={createScreenOptions}>
     <Tab.Screen name="Home" component={HomeNavigator} />
     <Tab.Screen name="Saved" component={SavedNavigator} />
     <Tab.Screen name="Add" component={AddItemScreen} />
