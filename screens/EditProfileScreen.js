@@ -123,7 +123,7 @@ export const EditProfileScreen = ({ navigation }) => {
 
         let imageUri = null;
         if (image.assets) {
-          imageUri = Platform.OS === "ios" ? image.assets[0].uri : image.path;
+          imageUri = image.assets[0].uri;
         }
 
         if (imageUri) {
@@ -153,7 +153,6 @@ export const EditProfileScreen = ({ navigation }) => {
         const image = await ImagePicker.launchImageLibraryAsync({
           mediaTypes: ImagePicker.MediaTypeOptions.All,
           allowsEditing: true,
-          aspect: [4, 3],
           quality: 1,
         });
 
@@ -161,7 +160,7 @@ export const EditProfileScreen = ({ navigation }) => {
 
         let imageUri = null;
         if (image.assets) {
-          imageUri = Platform.OS === "ios" ? image.assets[0].uri : image.path;
+          imageUri = image.assets[0].uri;
         }
 
         if (imageUri) {
