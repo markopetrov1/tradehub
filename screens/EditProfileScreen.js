@@ -408,7 +408,7 @@ const styles = StyleSheet.create({
     padding: 20,
     width: 127,
     height: 127,
-    backgroundColor: "#f3f3f3",
+    overflow: "hidden",
   },
   profileIconWrapper: {
     justifyContent: "center",

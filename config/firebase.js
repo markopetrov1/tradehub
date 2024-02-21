@@ -24,5 +24,6 @@ export const auth = initializeAuth(app, {
 });
 
 export const usersRef = collection(database, "users");
+export const itemsRef = collection(database, "items");
 
 export default app;

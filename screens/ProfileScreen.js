@@ -1,5 +1,6 @@
 import {
   Image,
+  Platform,
   SafeAreaView,
   StyleSheet,
   Text,
@@ -11,13 +12,10 @@ import { signOut } from "firebase/auth";
 import { auth } from "../config/firebase";
 import { BackButton } from "../components/BackButton";
 import {
-  FontAwesome,
   FontAwesome5,
-  Ionicons,
   MaterialIcons,
 } from "@expo/vector-icons";
-import { getCurrentUser } from "../utilities/auth";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useSelector } from "react-redux";
 import LottieView from "lottie-react-native";
 import { Loading } from "../components/Loading";
@@ -110,6 +108,7 @@ export const ProfileScreen = ({ navigation }) => {
               padding: 10,
               borderRadius: 10,
               overflow: "hidden",
+              marginBottom: Platform.OS === "android" ? 20 : 0,
             }}
           >
             No items yet
@@ -162,7 +161,7 @@ const styles = StyleSheet.create({
     padding: 20,
     width: 127,
     height: 127,
-    backgroundColor: "#f3f3f3",
+    overflow: "hidden",
   },
   profileIconWrapper: {
     justifyContent: "center",
