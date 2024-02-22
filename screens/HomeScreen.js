@@ -40,7 +40,6 @@ export const HomeScreen = ({ navigation }) => {
 
     if (!snapshot.empty) {
       let newPostedItems = [];
-      console.log("VLEGVIT");
 
       setLastDoc(snapshot.docs[snapshot.docs.length - 1]);
 
@@ -75,7 +74,6 @@ export const HomeScreen = ({ navigation }) => {
             const newPostedItems = [...postedItems];
 
             snapshot.forEach((doc) => {
-              console.log(doc.data());
               newPostedItems.push(doc.data());
             });
 
