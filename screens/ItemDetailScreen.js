@@ -1,4 +1,5 @@
 import {
+  Alert,
   Button,
   FlatList,
   Image,
@@ -13,13 +14,42 @@ import {
 import { colors } from "../themes/colors";
 import { useEffect } from "react";
 import { FontAwesome, Ionicons } from "@expo/vector-icons";
+import { favouriteItemsRef } from "../config/firebase";
+import { useDispatch, useSelector } from "react-redux";
+import { addDoc } from "firebase/firestore";
+import { setFavouriteItems } from "../redux/slices/userSlice";
 
 export const ItemDetailScreen = ({ route, navigation }) => {
   const { item } = route.params;
+  const { user, favouriteItems } = useSelector((state) => state.user);
+
+  const dispatch = useDispatch();
 
   const handleExchange = () => {
     console.log("Should exchange now");
-    console.log(item);
+    isItemInFavourites();
+  };
+
+  const isItemInFavourites = () => {
+    console.log(favouriteItems.map((item) => item.id));
+  };
+
+  const addToFavourites = async () => {
+    try {
+      const { datePosted, ...itemWithoutDatePosted } = item;
+      const data = {
+        ...itemWithoutDatePosted,
+        savedBy: user.id,
+      };
+
+      await addDoc(favouriteItemsRef, data);
+
+      dispatch(setFavouriteItems([...favouriteItems, data]));
+      Alert.alert("Added to favourites!", "Item has been saved successfully.");
+    } catch (error) {
+      console.log("Error adding new item:", error);
+      Alert.alert("Error", "Failed to save new item. Please try again later.");
+    }
   };
 
   return (
@@ -28,7 +58,10 @@ export const ItemDetailScreen = ({ route, navigation }) => {
         <Text style={{ fontWeight: "bold", color: "#FFF", fontSize: 32 }}>
           Details
         </Text>
-        <TouchableOpacity style={styles.starIconContainer}>
+        <TouchableOpacity
+          style={styles.starIconContainer}
+          onPress={addToFavourites}
+        >
           <Ionicons name="star-sharp" size={40} color={"yellow"} />
         </TouchableOpacity>
       </View>

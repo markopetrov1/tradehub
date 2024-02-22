@@ -14,7 +14,7 @@ import LottieView from "lottie-react-native";
 import { BackButton } from "../components/BackButton";
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
-import { setUserLoading } from "../redux/slices/user";
+import { setUserLoading } from "../redux/slices/userSlice";
 import { Loading } from "../components/Loading";
 import { registerUser } from "../utilities/auth";
 import { validateEmail } from "../utilities/validation";

@@ -28,7 +28,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth, usersRef } from "../config/firebase";
 import { useSelector, useDispatch } from "react-redux";
 import { Loading } from "../components/Loading";
-import { setUser, setUserLoading } from "../redux/slices/user";
+import { setUser, setUserLoading } from "../redux/slices/userSlice";
 import * as ImagePicker from "expo-image-picker";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import { doc, updateDoc } from "firebase/firestore";

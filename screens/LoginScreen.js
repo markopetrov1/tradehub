@@ -17,7 +17,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../config/firebase";
 import { useSelector, useDispatch } from "react-redux";
 import { Loading } from "../components/Loading";
-import { setUserLoading } from "../redux/slices/user";
+import { setUserLoading } from "../redux/slices/userSlice";
 
 export const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");

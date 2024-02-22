@@ -4,7 +4,7 @@ import { AppNavigator } from "./AppNavigator";
 import { LoginNavigator } from "./LoginNavigator";
 import { useSelector, useDispatch } from "react-redux";
 import { onAuthStateChanged } from "firebase/auth";
-import { setUser } from "../redux/slices/user";
+import { setUser } from "../redux/slices/userSlice";
 import { auth } from "../config/firebase";
 import { getCurrentUser } from "../utilities/auth";
 

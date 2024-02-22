@@ -25,5 +25,6 @@ export const auth = initializeAuth(app, {
 
 export const usersRef = collection(database, "users");
 export const itemsRef = collection(database, "items");
+export const favouriteItemsRef = collection(database, "favourites");
 
 export default app;

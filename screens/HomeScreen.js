@@ -9,16 +9,25 @@ import {
 } from "react-native";
 import { colors } from "../themes/colors";
 import { useEffect, useState } from "react";
-import { database, itemsRef } from "../config/firebase";
-import { getDocs, limit, orderBy, query, startAfter } from "firebase/firestore";
+import { database, favouriteItemsRef, itemsRef } from "../config/firebase";
+import {
+  getDocs,
+  limit,
+  orderBy,
+  query,
+  startAfter,
+  where,
+} from "firebase/firestore";
 import { Loading } from "../components/Loading";
 import { Ionicons } from "@expo/vector-icons";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { FontAwesome } from "@expo/vector-icons";
 import { timeAgo } from "../utilities/methodHelpers";
+import { setFavouriteItems } from "../redux/slices/userSlice";
 
 export const HomeScreen = ({ navigation }) => {
   const { user } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
 
   let onEndReachedCalledDuringMomentum = false;
 
@@ -28,10 +37,29 @@ export const HomeScreen = ({ navigation }) => {
   const [postedItems, setPostedItems] = useState([]);
 
   useEffect(() => {
-    getPostedItems();
+    getAllItems();
+    getFavouriteItems();
   }, []);
 
-  const getPostedItems = async () => {
+  const getFavouriteItems = async () => {
+    try {
+      const q = query(favouriteItemsRef, where("savedBy", "==", user.id));
+      const snapshot = await getDocs(q);
+
+      const favouriteItems = [];
+      snapshot.forEach((doc) => {
+        const itemData = doc.data();
+        // Exclude the "datePosted" attribute
+        const { datePosted, ...itemWithoutDatePosted } = itemData;
+        favouriteItems.push(itemWithoutDatePosted);
+      });
+      dispatch(setFavouriteItems(favouriteItems));
+    } catch (error) {
+      console.log("Error fetching favorite items:", error);
+    }
+  };
+
+  const getAllItems = async () => {
     setIsLoading(true);
 
     const q = query(itemsRef, orderBy("datePosted", "desc"), limit(3));
@@ -75,7 +103,8 @@ export const HomeScreen = ({ navigation }) => {
             const newPostedItems = [...postedItems];
 
             snapshot.forEach((doc) => {
-              newPostedItems.push(doc.data());
+              const documentId = doc.id;
+              newPostedItems.push({ ...doc.data(), id: documentId });
             });
 
             setPostedItems(newPostedItems);
