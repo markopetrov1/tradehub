@@ -44,7 +44,8 @@ export const HomeScreen = ({ navigation }) => {
       setLastDoc(snapshot.docs[snapshot.docs.length - 1]);
 
       for (let i = 0; i < snapshot.docs.length; i++) {
-        newPostedItems.push(snapshot.docs[i].data());
+        const documentId = snapshot.docs[i].id;
+        newPostedItems.push({ ...snapshot.docs[i].data(), id: documentId });
       }
 
       setPostedItems(newPostedItems);

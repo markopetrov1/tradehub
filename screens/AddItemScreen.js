@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -13,7 +13,7 @@ import {
 import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { useSelector } from "react-redux";
 import { Dropdown } from "react-native-element-dropdown";
-import { addDoc } from "firebase/firestore";
+import { addDoc, serverTimestamp } from "firebase/firestore";
 import * as ImagePicker from "expo-image-picker";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import { Loading } from "../components/Loading";
@@ -32,6 +32,19 @@ export const AddItemScreen = ({ navigation }) => {
     itemImage: "",
     datePosted: "",
   });
+
+  useEffect(() => {
+    setItemData({
+      ...itemData,
+      userId: user.id,
+      userProfilePic: user.profilePic,
+      datePosted: serverTimestamp(),
+      userCity: user.city,
+      userCountry: user.country,
+      userFirstName: user.firstName,
+      userLastName: user.lastName,
+    });
+  }, [user]);
 
   const [hashtagText, setHashtagText] = useState("");
 
@@ -65,7 +78,7 @@ export const AddItemScreen = ({ navigation }) => {
     if (!title || !itemCondition || !description || !preference || !itemImage) {
       Alert.alert(
         "All fields required!",
-        "Please fill all fields and upload an image."
+        "Please fill all the fields and upload an image."
       );
       return false;
     }
@@ -299,7 +312,7 @@ export const AddItemScreen = ({ navigation }) => {
             ))}
           </View>
           {loading ? (
-            <View style={{ marginTop: 50 }}>
+            <View style={{ marginTop: 20 }}>
               <Loading />
             </View>
           ) : (
@@ -408,7 +421,6 @@ const styles = StyleSheet.create({
     padding: 5,
     borderRadius: 10,
     alignSelf: "center",
-    marginLeft: "auto",
     marginTop: 20,
     marginBottom: 50,
   },
@@ -432,7 +444,7 @@ const styles = StyleSheet.create({
     width: 150,
     padding: 20,
     alignSelf: "center",
-
+    borderRadius: 10,
     alignItems: "center",
   },
   addedHashtagsContainer: {

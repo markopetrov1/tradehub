@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { colors } from "../themes/colors";
 import { useEffect } from "react";
-import { Ionicons } from "@expo/vector-icons";
+import { FontAwesome, Ionicons } from "@expo/vector-icons";
 
 export const ItemDetailScreen = ({ route, navigation }) => {
   const { item } = route.params;
@@ -29,7 +29,7 @@ export const ItemDetailScreen = ({ route, navigation }) => {
           Details
         </Text>
         <TouchableOpacity style={styles.starIconContainer}>
-          <Ionicons name="star-sharp" size={40} color="yellow" />
+          <Ionicons name="star-sharp" size={40} color={"yellow"} />
         </TouchableOpacity>
       </View>
       <ScrollView style={styles.inputContainer}>
@@ -43,11 +43,40 @@ export const ItemDetailScreen = ({ route, navigation }) => {
           <Text style={styles.condition}>Condition: {item.itemCondition}</Text>
           <Text style={styles.description}>{item.description}</Text>
           <Text style={styles.preference}>Preference: {item.preference}</Text>
-          <Text
-            style={[styles.preference, { marginTop: 20, fontWeight: "bold" }]}
+          <View
+            style={{
+              marginTop: 20,
+              fontWeight: "bold",
+              flexDirection: "row",
+            }}
           >
-            Posted by: {item.userFirstName} {item.userLastName}
-          </Text>
+            <FontAwesome name="user-circle" size={20} color="black" />
+            <Text
+              style={[
+                styles.preference,
+                { fontWeight: "bold", marginLeft: 10 },
+              ]}
+            >
+              {item.userFirstName} {item.userLastName}
+            </Text>
+          </View>
+          <View
+            style={{
+              marginTop: 10,
+              fontWeight: "bold",
+              flexDirection: "row",
+            }}
+          >
+            <FontAwesome name="globe" size={20} color="black" />
+            <Text
+              style={[
+                styles.preference,
+                { fontWeight: "bold", marginLeft: 10 },
+              ]}
+            >
+              {item.userCity}, {item.userCountry}
+            </Text>
+          </View>
 
           <View style={styles.hashtags}>
             {item.hashtags.map((tag, index) => (
