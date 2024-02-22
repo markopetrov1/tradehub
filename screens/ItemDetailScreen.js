@@ -27,11 +27,10 @@ export const ItemDetailScreen = ({ route, navigation }) => {
 
   const handleExchange = () => {
     console.log("Should exchange now");
-    isItemInFavourites();
   };
 
   const isItemInFavourites = () => {
-    console.log(favouriteItems.map((item) => item.id));
+    return favouriteItems.map((item) => item.id).includes(item.id);
   };
 
   const addToFavourites = async () => {
@@ -42,13 +41,10 @@ export const ItemDetailScreen = ({ route, navigation }) => {
         savedBy: user.id,
       };
 
-      await addDoc(favouriteItemsRef, data);
-
       dispatch(setFavouriteItems([...favouriteItems, data]));
-      Alert.alert("Added to favourites!", "Item has been saved successfully.");
+      await addDoc(favouriteItemsRef, data);
     } catch (error) {
       console.log("Error adding new item:", error);
-      Alert.alert("Error", "Failed to save new item. Please try again later.");
     }
   };
 
@@ -61,8 +57,13 @@ export const ItemDetailScreen = ({ route, navigation }) => {
         <TouchableOpacity
           style={styles.starIconContainer}
           onPress={addToFavourites}
+          disabled={isItemInFavourites()}
         >
-          <Ionicons name="star-sharp" size={40} color={"yellow"} />
+          <Ionicons
+            name="star-sharp"
+            size={40}
+            color={isItemInFavourites() ? "yellow" : "white"}
+          />
         </TouchableOpacity>
       </View>
       <ScrollView style={styles.inputContainer}>
@@ -126,12 +127,14 @@ export const ItemDetailScreen = ({ route, navigation }) => {
               </View>
             ))}
           </View>
-          <TouchableOpacity
-            onPress={handleExchange}
-            style={styles.exchangeButton}
-          >
-            <Text style={styles.exchangeButtonText}>Exchange</Text>
-          </TouchableOpacity>
+          {user.id != item.userId && (
+            <TouchableOpacity
+              onPress={handleExchange}
+              style={styles.exchangeButton}
+            >
+              <Text style={styles.exchangeButtonText}>Exchange</Text>
+            </TouchableOpacity>
+          )}
         </View>
       </ScrollView>
     </View>

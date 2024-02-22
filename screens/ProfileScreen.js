@@ -11,21 +11,77 @@ import { colors } from "../themes/colors";
 import { signOut } from "firebase/auth";
 import { auth } from "../config/firebase";
 import { BackButton } from "../components/BackButton";
-import {
-  FontAwesome5,
-  MaterialIcons,
-} from "@expo/vector-icons";
-import { useState } from "react";
+import { FontAwesome, FontAwesome5, MaterialIcons } from "@expo/vector-icons";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import LottieView from "lottie-react-native";
 import { Loading } from "../components/Loading";
+import { FlatList } from "react-native-gesture-handler";
 
 export const ProfileScreen = ({ navigation }) => {
-  const { user } = useSelector((state) => state.user);
+  const { user, userItems } = useSelector((state) => state.user);
   const [loading, setLoading] = useState(false);
 
   const handleLogout = async () => {
     await signOut(auth);
+  };
+
+  const handleCardPress = (item) => {
+    navigation.navigate("ItemDetailScreen", { item });
+  };
+
+  const renderItem = ({ item }) => {
+    return (
+      <TouchableOpacity
+        style={styles.listElement}
+        onPress={() => {
+          handleCardPress(item);
+        }}
+      >
+        <View
+          style={{
+            flex: 1,
+            flexDirection: "row",
+            alignItems: "center",
+            paddingHorizontal: 10,
+            backgroundColor: colors.bg.primary,
+            paddingVertical: 10,
+          }}
+        >
+          {item.userProfilePic ? (
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <Image
+                source={{ uri: item.userProfilePic }}
+                style={{ borderRadius: 50, width: 30, height: 30 }}
+              />
+              <Text style={{ marginLeft: 5 }}>
+                {item.userFirstName} {item.userLastName}
+              </Text>
+            </View>
+          ) : (
+            // <FontAwesome name="image" size={24} color="black" />
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <FontAwesome name="user-circle" size={22} color="black" />
+
+              <Text style={{ marginLeft: 5 }}>
+                {item.userFirstName} {item.userLastName}
+              </Text>
+            </View>
+          )}
+        </View>
+        <Image source={{ uri: item.itemImage }} style={styles.listImage} />
+        <Text
+          style={{
+            textAlign: "center",
+            paddingVertical: 10,
+            backgroundColor: colors.bg.primary,
+            fontWeight: "bold",
+          }}
+        >
+          {item.title}
+        </Text>
+      </TouchableOpacity>
+    );
   };
 
   return (
@@ -80,57 +136,60 @@ export const ProfileScreen = ({ navigation }) => {
       </View>
 
       <View style={styles.contentContainer}>
-        {/* <LottieView
-          style={{
-            width: 160,
-            height: 280,
-            alignSelf: "center",
-          }}
-          key="animation"
-          resizeMode="cover"
-          autoPlay
-          source={require("../assets/animations/no-data-lottie.json")}
-        /> */}
-
-        <View
-          style={{
-            alignSelf: "center",
-            justifyContent: "flex-end",
-            flex: 1,
-            paddingTop: 50,
-          }}
-        >
-          <Text
-            style={{
-              fontSize: 22,
-              backgroundColor: colors.bg.secondary,
-              color: "white",
-              padding: 10,
-              borderRadius: 10,
-              overflow: "hidden",
-              marginBottom: Platform.OS === "android" ? 20 : 0,
-            }}
-          >
-            No items yet
-          </Text>
-        </View>
-        <View
-          style={{ flex: 1, flexDirection: "row", justifyContent: "center" }}
-        >
-          <LottieView
-            style={{
-              width: 75,
-              height: 150,
-              alignSelf: "flex-end",
-              marginBottom: 10,
-              transform: [{ rotate: "15deg" }],
-            }}
-            key="animation"
-            resizeMode="cover"
-            autoPlay
-            source={require("../assets/animations/arrow-lottie.json")}
+        {userItems.length > 0 ? (
+          <FlatList
+            showsVerticalScrollIndicator={false}
+            showsHorizontalScrollIndicator={false}
+            data={userItems}
+            renderItem={renderItem}
           />
-        </View>
+        ) : (
+          <>
+            <View
+              style={{
+                alignSelf: "center",
+                justifyContent: "flex-end",
+                flex: 1,
+                paddingTop: 50,
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 22,
+                  backgroundColor: colors.bg.secondary,
+                  color: "white",
+                  padding: 10,
+                  borderRadius: 10,
+                  overflow: "hidden",
+                  marginBottom: Platform.OS === "android" ? 20 : 0,
+                }}
+              >
+                No items yet
+              </Text>
+            </View>
+            <View
+              style={{
+                flex: 1,
+                flexDirection: "row",
+                justifyContent: "center",
+              }}
+            >
+              <LottieView
+                style={{
+                  width: 75,
+                  height: 150,
+                  alignSelf: "flex-end",
+                  marginBottom: 10,
+                  transform: [{ rotate: "15deg" }],
+                }}
+                key="animation"
+                resizeMode="cover"
+                autoPlay
+                source={require("../assets/animations/arrow-lottie.json")}
+              />
+            </View>
+          </>
+        )}
       </View>
     </View>
   );
@@ -147,6 +206,8 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 60,
     borderTopRightRadius: 60,
     flex: 4,
+    alignItems: "center",
+    paddingTop: 30,
   },
   logoutWrapper: {
     flexDirection: "row",
@@ -183,5 +244,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     padding: 3,
     textAlign: "center",
+  },
+  listElement: {
+    width: 300,
+    borderWidth: 1,
+    borderColor: "lightgray",
+    margin: 10,
+    borderRadius: 10,
+    overflow: "hidden",
+  },
+  listImage: {
+    width: "100%",
+    height: 190,
+    overflow: "hidden",
   },
 });

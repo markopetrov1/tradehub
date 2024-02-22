@@ -23,7 +23,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
 import { FontAwesome } from "@expo/vector-icons";
 import { timeAgo } from "../utilities/methodHelpers";
-import { setFavouriteItems } from "../redux/slices/userSlice";
+import { setFavouriteItems, setUserItems } from "../redux/slices/userSlice";
 
 export const HomeScreen = ({ navigation }) => {
   const { user } = useSelector((state) => state.user);
@@ -39,6 +39,7 @@ export const HomeScreen = ({ navigation }) => {
   useEffect(() => {
     getAllItems();
     getFavouriteItems();
+    getUserItems();
   }, []);
 
   const getFavouriteItems = async () => {
@@ -56,6 +57,25 @@ export const HomeScreen = ({ navigation }) => {
       dispatch(setFavouriteItems(favouriteItems));
     } catch (error) {
       console.log("Error fetching favorite items:", error);
+    }
+  };
+
+  const getUserItems = async () => {
+    try {
+      const q = query(itemsRef, where("userId", "==", user.id));
+      const snapshot = await getDocs(q);
+
+      const userItems = [];
+      snapshot.forEach((doc) => {
+        const itemData = doc.data();
+        // Exclude the "datePosted" attribute
+        const { datePosted, ...itemWithoutDatePosted } = itemData;
+        userItems.push(itemWithoutDatePosted);
+      });
+
+      dispatch(setUserItems(userItems));
+    } catch (error) {
+      console.log("Error fetching user's items:", error);
     }
   };
 
