@@ -31,7 +31,8 @@ export const SavedScreen = ({ navigation }) => {
   const dispatch = useDispatch();
 
   const handleCardPress = (item) => {
-    navigation.navigate("ItemDetailScreen", { item });
+    const exchangeRestriction = "restricted";
+    navigation.navigate("ItemDetailScreen", { item, exchangeRestriction });
   };
 
   const handleRemoveFromFavorites = async (item) => {

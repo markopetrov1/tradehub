@@ -12,21 +12,84 @@ import {
   View,
 } from "react-native";
 import { colors } from "../themes/colors";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import { favouriteItemsRef } from "../config/firebase";
 import { useDispatch, useSelector } from "react-redux";
 import { addDoc } from "firebase/firestore";
 import { setFavouriteItems } from "../redux/slices/userSlice";
+import Modal from "react-native-modal";
 
 export const ItemDetailScreen = ({ route, navigation }) => {
   const { item } = route.params;
-  const { user, favouriteItems } = useSelector((state) => state.user);
+  const { exchangeRestriction } = route.params;
+  const { user, favouriteItems, userItems } = useSelector(
+    (state) => state.user
+  );
+
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [selectedItemToExchange, setSelectedItemToExchange] = useState(null);
 
   const dispatch = useDispatch();
 
-  const handleExchange = () => {
-    console.log("Should exchange now");
+  useEffect(() => {
+    if (selectedItemToExchange) {
+    }
+    setSelectedItemToExchange(null);
+  }, [selectedItemToExchange]);
+
+  const toggleModal = () => {
+    setModalVisible(!isModalVisible);
+  };
+
+  const renderUserItemsModal = () => {
+    return (
+      <Modal
+        onBackdropPress={toggleModal}
+        isVisible={isModalVisible}
+        style={styles.modal}
+      >
+        <View style={styles.modalContainer}>
+          <Text
+            style={{
+              fontSize: 22,
+              textAlign: "center",
+              fontWeight: "bold",
+              paddingBottom: 10,
+            }}
+          >
+            Choose item to exchange
+          </Text>
+          <FlatList
+            contentContainerStyle={{
+              justifyContent: "center",
+              alignContent: "center",
+            }}
+            data={userItems}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                onPress={() => {
+                  setSelectedItemToExchange(item);
+                  toggleModal();
+                }}
+                style={styles.modalItem}
+              >
+                <Text
+                  style={{
+                    fontSize: 18,
+                    fontWeight: "bold",
+                    color: "white",
+                    textAlign: "center",
+                  }}
+                >
+                  {item.title}
+                </Text>
+              </TouchableOpacity>
+            )}
+          />
+        </View>
+      </Modal>
+    );
   };
 
   const isItemInFavourites = () => {
@@ -70,7 +133,15 @@ export const ItemDetailScreen = ({ route, navigation }) => {
         <View style={styles.inputSubContainer}>
           <Image
             source={{ uri: item.itemImage }}
-            style={{ width: "100%", height: 170, borderRadius: 15 }}
+            style={{
+              width: "100%",
+              height: 170,
+              borderRadius: 15,
+              shadowColor: "gray",
+              shadowOffset: { width: 3, height: 10 },
+              shadowOpacity: 0.5,
+              shadowRadius: 4,
+            }}
             resizeMode="cover"
           />
           <Text style={styles.title}>{item.title}</Text>
@@ -127,9 +198,9 @@ export const ItemDetailScreen = ({ route, navigation }) => {
               </View>
             ))}
           </View>
-          {user.id != item.userId && (
+          {user.id != item.userId && !exchangeRestriction && (
             <TouchableOpacity
-              onPress={handleExchange}
+              onPress={toggleModal}
               style={styles.exchangeButton}
             >
               <Text style={styles.exchangeButtonText}>Exchange</Text>
@@ -137,6 +208,7 @@ export const ItemDetailScreen = ({ route, navigation }) => {
           )}
         </View>
       </ScrollView>
+      {renderUserItemsModal()}
     </View>
   );
 };
@@ -240,5 +312,37 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 25,
     right: 15,
+  },
+  modalContainer: {
+    padding: 20,
+    borderRadius: 10,
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 5,
+      height: 10,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    width: 330,
+    height: 500,
+    backgroundColor: "#f3f3f3",
+    paddingHorizontal: 30,
+    alignSelf: "center",
+  },
+  modal: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalItem: {
+    padding: 20,
+    borderRadius: 15,
+    marginTop: 20,
+    backgroundColor: colors.bg.primary,
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignContent: "center",
+    alignItems: "center",
   },
 });
