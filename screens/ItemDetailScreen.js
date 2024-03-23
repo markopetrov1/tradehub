@@ -14,29 +14,73 @@ import {
 import { colors } from "../themes/colors";
 import { useEffect, useState } from "react";
 import { FontAwesome, Ionicons } from "@expo/vector-icons";
-import { favouriteItemsRef } from "../config/firebase";
+import { exchangesRef, favouriteItemsRef, itemsRef } from "../config/firebase";
 import { useDispatch, useSelector } from "react-redux";
 import { addDoc } from "firebase/firestore";
-import { setFavouriteItems } from "../redux/slices/userSlice";
+import { setFavouriteItems, setUserExchanges } from "../redux/slices/userSlice";
 import Modal from "react-native-modal";
+import { capitalizeFirstLetter } from "../utilities/methodHelpers";
+import { Loading } from "../components/Loading";
 
 export const ItemDetailScreen = ({ route, navigation }) => {
   const { item } = route.params;
   const { exchangeRestriction } = route.params;
-  const { user, favouriteItems, userItems } = useSelector(
+  const { user, favouriteItems, userItems, userExchanges } = useSelector(
     (state) => state.user
   );
 
   const [isModalVisible, setModalVisible] = useState(false);
-  const [selectedItemToExchange, setSelectedItemToExchange] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    if (selectedItemToExchange) {
+  const handleExchange = async (itemToExchange) => {
+    setLoading(true);
+    try {
+      const capitalizedItem = {};
+      const capitalizedItemToExchange = {};
+
+      for (const key in itemToExchange) {
+        if (
+          Object.hasOwnProperty.call(itemToExchange, key) &&
+          key !== "datePosted"
+        ) {
+          capitalizedItem[`senderItem${capitalizeFirstLetter(key)}`] =
+            itemToExchange[key];
+        }
+      }
+      new Date().toISOString;
+      for (const key in item) {
+        if (Object.hasOwnProperty.call(item, key) && key !== "datePosted") {
+          capitalizedItemToExchange[
+            `receiverItem${capitalizeFirstLetter(key)}`
+          ] = item[key];
+        }
+      }
+
+      const data = {
+        ...capitalizedItem,
+        ...capitalizedItemToExchange,
+        status: "PENDING",
+        date: new Date().toISOString(),
+      };
+
+      dispatch(setUserExchanges([...userExchanges, data]));
+      await addDoc(exchangesRef, data);
+      Alert.alert(
+        "Exchange requested!",
+        "New exchange has been requested successfully."
+      );
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      console.log("Error adding an exchange:", error);
+      Alert.alert(
+        "Error",
+        "Failed to request new exchange. Please try again later."
+      );
     }
-    setSelectedItemToExchange(null);
-  }, [selectedItemToExchange]);
+  };
 
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
@@ -69,7 +113,7 @@ export const ItemDetailScreen = ({ route, navigation }) => {
             renderItem={({ item }) => (
               <TouchableOpacity
                 onPress={() => {
-                  setSelectedItemToExchange(item);
+                  handleExchange(item);
                   toggleModal();
                 }}
                 style={styles.modalItem}
@@ -207,6 +251,18 @@ export const ItemDetailScreen = ({ route, navigation }) => {
             </TouchableOpacity>
           )}
         </View>
+        {loading && (
+          <View
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: "45%",
+              zIndex: 100,
+            }}
+          >
+            <Loading />
+          </View>
+        )}
       </ScrollView>
       {renderUserItemsModal()}
     </View>
