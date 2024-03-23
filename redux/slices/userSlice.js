@@ -5,6 +5,7 @@ const initialState = {
   userLoading: false,
   userItems: [],
   favouriteItems: [],
+  userExchanges: [],
 };
 
 export const userSlice = createSlice({
@@ -23,10 +24,18 @@ export const userSlice = createSlice({
     setFavouriteItems: (state, action) => {
       state.favouriteItems = action.payload;
     },
+    setUserExchanges: (state, action) => {
+      state.userExchanges = action.payload;
+    },
   },
 });
 
-export const { setUser, setUserLoading, setUserItems, setFavouriteItems } =
-  userSlice.actions;
+export const {
+  setUser,
+  setUserLoading,
+  setUserItems,
+  setFavouriteItems,
+  setUserExchanges,
+} = userSlice.actions;
 
 export default userSlice.reducer;
