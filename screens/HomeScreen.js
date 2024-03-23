@@ -9,7 +9,12 @@ import {
 } from "react-native";
 import { colors } from "../themes/colors";
 import { useEffect, useState } from "react";
-import { database, favouriteItemsRef, itemsRef } from "../config/firebase";
+import {
+  database,
+  exchangesRef,
+  favouriteItemsRef,
+  itemsRef,
+} from "../config/firebase";
 import {
   getDocs,
   limit,
@@ -23,7 +28,11 @@ import { Ionicons } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
 import { FontAwesome } from "@expo/vector-icons";
 import { timeAgo } from "../utilities/methodHelpers";
-import { setFavouriteItems, setUserItems } from "../redux/slices/userSlice";
+import {
+  setFavouriteItems,
+  setUserExchanges,
+  setUserItems,
+} from "../redux/slices/userSlice";
 
 export const HomeScreen = ({ navigation }) => {
   const { user } = useSelector((state) => state.user);
@@ -40,11 +49,41 @@ export const HomeScreen = ({ navigation }) => {
     getAllItems();
     getFavouriteItems();
     getUserItems();
+    getUserExchanges();
   }, []);
+
+  const getUserExchanges = async () => {
+    try {
+      const senderQ = query(
+        exchangesRef,
+        where("senderItemUserId", "==", user.id)
+      );
+      const receiverQ = query(
+        exchangesRef,
+        where("receiverItemUserId", "==", user.id)
+      );
+
+      const [senderSnapshot, receiverSnapshot] = await Promise.all([
+        getDocs(senderQ),
+        getDocs(receiverQ),
+      ]);
+
+      const senderExchanges = senderSnapshot.docs.map((doc) => doc.data());
+      const receiverExchanges = receiverSnapshot.docs.map((doc) => doc.data());
+
+      const exchanges = senderExchanges.concat(receiverExchanges);
+      dispatch(setUserExchanges(exchanges));
+    } catch (error) {
+      console.log("Error fetching user exchanges:", error);
+    }
+  };
 
   const getFavouriteItems = async () => {
     try {
-      const q = query(favouriteItemsRef, where("savedBy", "==", user.id));
+      const q = query(
+        favouriteItemsRef,
+        where("receiverItemId", "==", user.id)
+      );
       const snapshot = await getDocs(q);
 
       const favouriteItems = [];
@@ -68,9 +107,10 @@ export const HomeScreen = ({ navigation }) => {
       const userItems = [];
       snapshot.forEach((doc) => {
         const itemData = doc.data();
-        // Exclude the "datePosted" attribute
+        const itemId = doc.id;
         const { datePosted, ...itemWithoutDatePosted } = itemData;
-        userItems.push(itemWithoutDatePosted);
+        const itemWithId = { id: itemId, ...itemWithoutDatePosted };
+        userItems.push(itemWithId);
       });
 
       dispatch(setUserItems(userItems));
@@ -145,7 +185,7 @@ export const HomeScreen = ({ navigation }) => {
 
   const onRefresh = () => {
     setTimeout(() => {
-      getPostedItems();
+      getAllItems();
     }, 1000);
   };
 
@@ -279,7 +319,6 @@ const styles = StyleSheet.create({
   },
   listElement: {
     width: 300,
-    // height: 200,
     borderWidth: 1,
     borderColor: "lightgray",
     margin: 10,
