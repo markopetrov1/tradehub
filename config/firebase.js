@@ -27,5 +27,6 @@ export const usersRef = collection(database, "users");
 export const itemsRef = collection(database, "items");
 export const favouriteItemsRef = collection(database, "favourites");
 export const exchangesRef = collection(database, "exchanges");
+export const matchedUsersRef = collection(database, "matchedUsers");
 
 export default app;

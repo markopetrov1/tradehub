@@ -6,6 +6,7 @@ const initialState = {
   userItems: [],
   favouriteItems: [],
   userExchanges: [],
+  matchedUsers: [],
 };
 
 export const userSlice = createSlice({
@@ -27,6 +28,9 @@ export const userSlice = createSlice({
     setUserExchanges: (state, action) => {
       state.userExchanges = action.payload;
     },
+    setMatchedUsers: (state, action) => {
+      state.matchedUsers = action.payload;
+    },
   },
 });
 
@@ -36,6 +40,7 @@ export const {
   setUserItems,
   setFavouriteItems,
   setUserExchanges,
+  setMatchedUsers,
 } = userSlice.actions;
 
 export default userSlice.reducer;

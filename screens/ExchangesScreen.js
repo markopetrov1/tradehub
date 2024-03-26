@@ -1,4 +1,5 @@
 import {
+  Alert,
   FlatList,
   Image,
   SafeAreaView,
@@ -14,29 +15,100 @@ import { useDispatch, useSelector } from "react-redux";
 import LottieView from "lottie-react-native";
 import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import { timeAgo } from "../utilities/methodHelpers";
-import { setFavouriteItems } from "../redux/slices/userSlice";
-import { favouriteItemsRef } from "../config/firebase";
 import {
+  setFavouriteItems,
+  setMatchedUsers,
+  setUserExchanges,
+} from "../redux/slices/userSlice";
+import {
+  exchangesRef,
+  favouriteItemsRef,
+  matchedUsersRef,
+} from "../config/firebase";
+import {
+  addDoc,
   deleteDoc,
   doc,
   getDoc,
   getDocs,
   query,
+  updateDoc,
   where,
 } from "firebase/firestore";
+import { AntDesign } from "@expo/vector-icons";
+import { CustomHeader } from "../components/Header";
 
 export const ExchangesScreen = ({ navigation }) => {
-  const { user, userExchanges } = useSelector((state) => state.user);
+  const { user, userExchanges, matchedUsers } = useSelector(
+    (state) => state.user
+  );
 
-  const [selectedCategory, setSelectedCategory] = useState("History");
+  const [selectedCategory, setSelectedCategory] = useState("Received");
 
   const [currentExchanges, setCurrentExchanges] = useState([]);
 
   const dispatch = useDispatch();
 
-  const acceptExchange = () => {};
+  const acceptExchange = async (item) => {
+    try {
+      const data = {
+        userId1: user.id,
+        userId2: item.senderItemUserId,
+      };
+      dispatch(setMatchedUsers([...matchedUsers, data]));
 
-  const denyExchange = () => {};
+      const updatedExchanges = userExchanges.map((exchange) =>
+        exchange === item ? { ...exchange, status: "SUCCESS" } : exchange
+      );
+      dispatch(setUserExchanges(updatedExchanges));
+
+      Alert.alert(
+        "Exchange successful!",
+        `Sucessfully accepted the exchange invitation from ${item.senderItemUserFirstName}. Feel free to chat anytime you want!`
+      );
+
+      await addDoc(matchedUsersRef, data);
+      const exchangeDoc = doc(exchangesRef, item.exchangeId);
+      await updateDoc(exchangeDoc, { ...item, status: "SUCCESS" });
+    } catch (error) {
+      console.log("Error accepting exchange item:", error);
+    }
+  };
+
+  const denyExchange = async (item) => {
+    try {
+      dispatch(
+        setUserExchanges(userExchanges.filter((exchange) => exchange != item))
+      );
+
+      const exchangeDoc = doc(exchangesRef, item.exchangeId);
+
+      await deleteDoc(exchangeDoc.ref);
+    } catch (error) {
+      console.log("Error removing exchange item:", error);
+    }
+  };
+  useEffect(() => {
+    // Filter and set current exchanges based on selected category and userExchanges
+    let filteredExchanges = [];
+    if (selectedCategory === "Sent") {
+      filteredExchanges = userExchanges.filter(
+        (exchange) =>
+          exchange.status === "PENDING" && exchange.senderItemUserId === user.id
+      );
+    } else if (selectedCategory === "Received") {
+      filteredExchanges = userExchanges.filter(
+        (exchange) =>
+          exchange.status === "PENDING" &&
+          exchange.receiverItemUserId === user.id
+      );
+    } else if (selectedCategory === "History") {
+      filteredExchanges = userExchanges.filter(
+        (exchange) => exchange.status === "SUCCESS"
+      );
+    }
+    setCurrentExchanges(filteredExchanges);
+  }, [selectedCategory, user.id, userExchanges]);
 
   const handleCardPress = (oldItem, type) => {
     const exchangeRestriction = "restricted";
@@ -198,7 +270,7 @@ export const ExchangesScreen = ({ navigation }) => {
               >
                 <TouchableOpacity
                   onPress={() => {
-                    acceptExchange();
+                    acceptExchange(item);
                   }}
                 >
                   <Text
@@ -218,7 +290,7 @@ export const ExchangesScreen = ({ navigation }) => {
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => {
-                    denyExchange();
+                    denyExchange(item);
                   }}
                 >
                   <Text
@@ -265,13 +337,13 @@ export const ExchangesScreen = ({ navigation }) => {
                   alignItems: "center",
                 }}
               >
-                {item.senderItemUserProfilePic ? (
+                {item.receiverItemUserProfilePic ? (
                   <Image
                     source={{ uri: item.receiverItemUserProfilePic }}
                     style={{ borderRadius: 50, width: 35, height: 35 }}
                   />
                 ) : (
-                  <FontAwesome name="user-circle" size={35} color="black" />
+                  <FontAwesome name="user-circle" size={33} color="black" />
                 )}
                 <Text style={{ marginLeft: 5, padding: 10, width: 270 }}>
                   You have sent an exchange request to{" "}
@@ -363,13 +435,10 @@ export const ExchangesScreen = ({ navigation }) => {
       />
     );
   };
+
   return (
     <View style={styles.mainContainer}>
-      <View style={styles.headerWrapper}>
-        <Text style={{ fontWeight: "bold", color: "#FFF", fontSize: 32 }}>
-          Exchanges
-        </Text>
-      </View>
+      <CustomHeader title={"Exchanges"} />
       <View style={styles.inputContainer}>
         <View style={{ flexDirection: "row", justifyContent: "space-evenly" }}>
           <TouchableOpacity
@@ -382,13 +451,6 @@ export const ExchangesScreen = ({ navigation }) => {
             ]}
             onPress={() => {
               setSelectedCategory("Sent");
-              setCurrentExchanges(
-                userExchanges.filter(
-                  (exchange) =>
-                    exchange.status === "PENDING" &&
-                    exchange.senderItemUserId === user.id
-                )
-              );
             }}
           >
             <Text
@@ -415,13 +477,6 @@ export const ExchangesScreen = ({ navigation }) => {
             ]}
             onPress={() => {
               setSelectedCategory("Received");
-              setCurrentExchanges(
-                userExchanges.filter(
-                  (exchange) =>
-                    exchange.status === "PENDING" &&
-                    exchange.receiverItemUserId === user.id
-                )
-              );
             }}
           >
             <Text
@@ -450,11 +505,6 @@ export const ExchangesScreen = ({ navigation }) => {
             ]}
             onPress={() => {
               setSelectedCategory("History");
-              setCurrentExchanges(
-                userExchanges.filter(
-                  (exchange) => exchange.status === "SUCCESS"
-                )
-              );
             }}
           >
             <Text
@@ -508,16 +558,6 @@ const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
     backgroundColor: colors.bg.primary,
-  },
-  headerWrapper: {
-    backgroundColor: colors.bg.primary,
-    paddingTop: 50,
-    alignItems: "center",
-  },
-  headerText: {
-    fontSize: 28,
-    color: "white",
-    fontWeight: "bold",
   },
   inputContainer: {
     paddingTop: 15,

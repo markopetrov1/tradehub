@@ -19,6 +19,7 @@ import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import { Loading } from "../components/Loading";
 import { colors } from "../themes/colors";
 import { itemsRef } from "../config/firebase";
+import { CustomHeader } from "../components/Header";
 
 export const AddItemScreen = ({ navigation }) => {
   const { user } = useSelector((state) => state.user);
@@ -191,9 +192,7 @@ export const AddItemScreen = ({ navigation }) => {
 
   return (
     <KeyboardAvoidingView style={styles.mainContainer}>
-      <View style={styles.headerWrapper}>
-        <Text style={styles.headerText}>Add Item</Text>
-      </View>
+      <CustomHeader title={"Add item"} />
       <ScrollView style={styles.inputContainer}>
         <View style={{ alignContent: "center" }}>
           {loading ? (
@@ -332,21 +331,15 @@ export const AddItemScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
-    backgroundColor: "white",
-  },
-  headerWrapper: {
     backgroundColor: colors.bg.primary,
-    paddingTop: 50,
-    paddingBottom: 15,
-    alignItems: "center",
-  },
-  headerText: {
-    fontSize: 28,
-    color: "white",
-    fontWeight: "bold",
   },
   inputContainer: {
     paddingHorizontal: 40,
+    borderTopRightRadius: 30,
+    borderTopLeftRadius: 30,
+    backgroundColor: "white",
+    flex: 1,
+    paddingTop: 35,
     marginTop: 20,
   },
   inputSubContainer: {

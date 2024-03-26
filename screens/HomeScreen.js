@@ -14,6 +14,7 @@ import {
   exchangesRef,
   favouriteItemsRef,
   itemsRef,
+  matchedUsersRef,
 } from "../config/firebase";
 import {
   getDocs,
@@ -24,12 +25,12 @@ import {
   where,
 } from "firebase/firestore";
 import { Loading } from "../components/Loading";
-import { Ionicons } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
-import { FontAwesome } from "@expo/vector-icons";
+import { FontAwesome, Feather, AntDesign } from "@expo/vector-icons";
 import { timeAgo } from "../utilities/methodHelpers";
 import {
   setFavouriteItems,
+  setMatchedUsers,
   setUserExchanges,
   setUserItems,
 } from "../redux/slices/userSlice";
@@ -46,10 +47,11 @@ export const HomeScreen = ({ navigation }) => {
   const [postedItems, setPostedItems] = useState([]);
 
   useEffect(() => {
-    getAllItems();
+    getFirstThreeItems();
     getFavouriteItems();
     getUserItems();
     getUserExchanges();
+    getMatchedUsers();
   }, []);
 
   const getUserExchanges = async () => {
@@ -68,11 +70,40 @@ export const HomeScreen = ({ navigation }) => {
         getDocs(receiverQ),
       ]);
 
-      const senderExchanges = senderSnapshot.docs.map((doc) => doc.data());
-      const receiverExchanges = receiverSnapshot.docs.map((doc) => doc.data());
+      const senderExchanges = senderSnapshot.docs.map((doc) => ({
+        exchangeId: doc.id,
+        ...doc.data(),
+      }));
+      const receiverExchanges = receiverSnapshot.docs.map((doc) => ({
+        exchangeId: doc.id,
+        ...doc.data(),
+      }));
 
       const exchanges = senderExchanges.concat(receiverExchanges);
       dispatch(setUserExchanges(exchanges));
+    } catch (error) {
+      console.log("Error fetching user exchanges:", error);
+    }
+  };
+
+  const getMatchedUsers = async () => {
+    try {
+      const user1Q = query(matchedUsersRef, where("userId1", "==", user.id));
+      const user2Q = query(matchedUsersRef, where("userId2", "==", user.id));
+
+      const [firstSnapshot, secondSnapshot] = await Promise.all([
+        getDocs(user1Q),
+        getDocs(user2Q),
+      ]);
+
+      const firstUserIds = firstSnapshot.docs.map((doc) => doc.data().userId2);
+      const secondUserIds = secondSnapshot.docs.map(
+        (doc) => doc.data().userId1
+      );
+
+      const matchedUserIds = [...new Set(firstUserIds.concat(secondUserIds))];
+      console.log("MATCHED USERS IDS", matchedUserIds);
+      dispatch(setMatchedUsers(matchedUserIds));
     } catch (error) {
       console.log("Error fetching user exchanges:", error);
     }
@@ -119,7 +150,7 @@ export const HomeScreen = ({ navigation }) => {
     }
   };
 
-  const getAllItems = async () => {
+  const getFirstThreeItems = async () => {
     setIsLoading(true);
 
     const q = query(itemsRef, orderBy("datePosted", "desc"), limit(3));
@@ -144,7 +175,7 @@ export const HomeScreen = ({ navigation }) => {
     setIsLoading(false);
   };
 
-  const getMore = async () => {
+  const getMoreItems = async () => {
     if (lastDoc) {
       setIsMoreLoading(true);
 
@@ -185,7 +216,7 @@ export const HomeScreen = ({ navigation }) => {
 
   const onRefresh = () => {
     setTimeout(() => {
-      getAllItems();
+      getFirstThreeItems();
     }, 1000);
   };
 
@@ -261,10 +292,23 @@ export const HomeScreen = ({ navigation }) => {
   return (
     <View style={styles.mainContainer}>
       <View style={styles.headerWrapper}>
-        <Text style={{ fontWeight: "bold", color: "#FFF", fontSize: 32 }}>
+        <Text
+          style={{
+            fontWeight: "bold",
+            color: "#FFF",
+            fontSize: 32,
+            flex: 1,
+            textAlign: "center",
+            paddingLeft: 30,
+          }}
+        >
           TradeHub
         </Text>
+        <TouchableOpacity onPress={() => navigation.navigate("ChatScreen")}>
+          <AntDesign name="message1" size={28} color="white" />
+        </TouchableOpacity>
       </View>
+
       <View style={styles.inputContainer}>
         <FlatList
           showsVerticalScrollIndicator={false}
@@ -282,7 +326,7 @@ export const HomeScreen = ({ navigation }) => {
           }}
           onEndReached={() => {
             if (!onEndReachedCalledDuringMomentum && !isMoreLoading) {
-              getMore();
+              getMoreItems();
             }
           }}
           directionalLockEnabled={true}
@@ -301,6 +345,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bg.primary,
     paddingTop: 50,
     alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: 20,
   },
   headerText: {
     fontSize: 28,

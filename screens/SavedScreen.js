@@ -16,6 +16,7 @@ import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import { timeAgo } from "../utilities/methodHelpers";
 import { setFavouriteItems } from "../redux/slices/userSlice";
 import { favouriteItemsRef } from "../config/firebase";
+import { AntDesign } from "@expo/vector-icons";
 import {
   deleteDoc,
   doc,
@@ -24,6 +25,7 @@ import {
   query,
   where,
 } from "firebase/firestore";
+import { CustomHeader } from "../components/Header";
 
 export const SavedScreen = ({ navigation }) => {
   const { user, favouriteItems } = useSelector((state) => state.user);
@@ -104,11 +106,7 @@ export const SavedScreen = ({ navigation }) => {
 
   return (
     <View style={styles.mainContainer}>
-      <View style={styles.headerWrapper}>
-        <Text style={{ fontWeight: "bold", color: "#FFF", fontSize: 32 }}>
-          Favourites
-        </Text>
-      </View>
+      <CustomHeader title={"Favourites"} />
       <View style={styles.inputContainer}>
         {favouriteItems.length > 0 ? (
           <FlatList
@@ -147,16 +145,6 @@ const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
     backgroundColor: colors.bg.primary,
-  },
-  headerWrapper: {
-    backgroundColor: colors.bg.primary,
-    paddingTop: 50,
-    alignItems: "center",
-  },
-  headerText: {
-    fontSize: 28,
-    color: "white",
-    fontWeight: "bold",
   },
   inputContainer: {
     paddingTop: 15,
