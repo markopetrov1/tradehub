@@ -34,6 +34,7 @@ import {
   setUserExchanges,
   setUserItems,
 } from "../redux/slices/userSlice";
+import { CustomHeader } from "../components/Header";
 
 export const HomeScreen = ({ navigation }) => {
   const { user } = useSelector((state) => state.user);
@@ -102,7 +103,6 @@ export const HomeScreen = ({ navigation }) => {
       );
 
       const matchedUserIds = [...new Set(firstUserIds.concat(secondUserIds))];
-      console.log("MATCHED USERS IDS", matchedUserIds);
       dispatch(setMatchedUsers(matchedUserIds));
     } catch (error) {
       console.log("Error fetching user exchanges:", error);
@@ -291,24 +291,7 @@ export const HomeScreen = ({ navigation }) => {
 
   return (
     <View style={styles.mainContainer}>
-      <View style={styles.headerWrapper}>
-        <Text
-          style={{
-            fontWeight: "bold",
-            color: "#FFF",
-            fontSize: 32,
-            flex: 1,
-            textAlign: "center",
-            paddingLeft: 30,
-          }}
-        >
-          TradeHub
-        </Text>
-        <TouchableOpacity onPress={() => navigation.navigate("ChatScreen")}>
-          <AntDesign name="message1" size={28} color="white" />
-        </TouchableOpacity>
-      </View>
-
+      <CustomHeader title={"TradeHub"} chat={true} />
       <View style={styles.inputContainer}>
         <FlatList
           showsVerticalScrollIndicator={false}

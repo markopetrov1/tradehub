@@ -438,7 +438,7 @@ export const ExchangesScreen = ({ navigation }) => {
 
   return (
     <View style={styles.mainContainer}>
-      <CustomHeader title={"Exchanges"} />
+      <CustomHeader chat={true} title={"Exchanges"} />
       <View style={styles.inputContainer}>
         <View style={{ flexDirection: "row", justifyContent: "space-evenly" }}>
           <TouchableOpacity

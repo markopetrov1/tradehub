@@ -106,7 +106,7 @@ export const SavedScreen = ({ navigation }) => {
 
   return (
     <View style={styles.mainContainer}>
-      <CustomHeader title={"Favourites"} />
+      <CustomHeader chat={true} title={"Favourites"} />
       <View style={styles.inputContainer}>
         {favouriteItems.length > 0 ? (
           <FlatList

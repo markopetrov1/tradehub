@@ -192,7 +192,7 @@ export const AddItemScreen = ({ navigation }) => {
 
   return (
     <KeyboardAvoidingView style={styles.mainContainer}>
-      <CustomHeader title={"Add item"} />
+      <CustomHeader chat={true} title={"Add item"} />
       <ScrollView style={styles.inputContainer}>
         <View style={{ alignContent: "center" }}>
           {loading ? (
