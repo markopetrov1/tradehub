@@ -60,7 +60,7 @@ export const ChatScreen = ({ navigation }) => {
       <CustomHeader title="Chat" back={true} chat={false} />
       <View style={styles.inputContainer}>
         {users.length > 0 ? (
-          <ChatList users={users} />
+          <ChatList users={users} currentUser={user}/>
         ) : (
           <View style={styles.loadingWrapper}>
             <Loading />

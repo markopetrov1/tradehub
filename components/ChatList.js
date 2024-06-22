@@ -3,8 +3,9 @@ import React from "react";
 import { colors } from "../themes/colors";
 import { FlatList } from "react-native-gesture-handler";
 import { ChatItem } from "./ChatItem";
+import { useSelector } from "react-redux";
 
-export const ChatList = ({ users }) => {
+export const ChatList = ({ users, currentUser }) => {
   return (
     <View style={{ flex: 1 }}>
       <FlatList
@@ -12,7 +13,7 @@ export const ChatList = ({ users }) => {
         contentContainerStyle={{ flex: 1, paddingVertical: 25 }}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
-        renderItem={({ item, index }) => <ChatItem item={item} />}
+        renderItem={({ item, index }) => <ChatItem currentUser={currentUser} item={item} />}
       />
     </View>
   );
