@@ -30,7 +30,7 @@ export const CustomHeader = ({ title, back, chat }) => {
 const styles = StyleSheet.create({
   headerWrapper: {
     backgroundColor: colors.bg.primary,
-    paddingTop: 50,
+    paddingTop: 60,
     alignItems: "center",
     flexDirection: "row",
     justifyContent: "space-between",

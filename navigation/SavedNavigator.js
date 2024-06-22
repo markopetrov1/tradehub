@@ -4,6 +4,7 @@ import { useNavigation } from "@react-navigation/native";
 import { SavedScreen } from "../screens/SavedScreen";
 import { ItemDetailScreen } from "../screens/ItemDetailScreen";
 import { ChatScreen } from "../screens/ChatScreen";
+import { ChatRoomScreen } from "../screens/ChatRoomScreen";
 
 const Stack = createStackNavigator();
 
@@ -24,6 +25,11 @@ export const SavedNavigator = () => {
         name="ChatScreen"
         options={{ header: () => null }}
         component={ChatScreen}
+      />
+      <Stack.Screen
+        name="ChatRoomScreen"
+        options={{ header: () => null }}
+        component={ChatRoomScreen}
       />
     </Stack.Navigator>
   );

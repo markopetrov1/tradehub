@@ -46,7 +46,6 @@ export const ChatScreen = ({ navigation }) => {
         fetchedUsers.push(doc.data());
       });
       setUsers(fetchedUsers);
-      console.log("FETCHNATI", fetchedUsers);
     } catch (error) {
       console.log("Error fetching users:", error);
     }
