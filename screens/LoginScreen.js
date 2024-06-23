@@ -13,11 +13,14 @@ import { colors } from "../themes/colors";
 import LottieView from "lottie-react-native";
 import { BackButton } from "../components/BackButton";
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../config/firebase";
+import { OAuthProvider, signInWithCredential, signInWithEmailAndPassword } from "firebase/auth";
+import { auth, usersRef } from "../config/firebase";
 import { useSelector, useDispatch } from "react-redux";
 import { Loading } from "../components/Loading";
 import { setUserLoading } from "../redux/slices/userSlice";
+import * as AppleAuthentication from "expo-apple-authentication"
+import { setDoc } from "firebase/firestore";
+
 
 export const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
@@ -34,6 +37,47 @@ export const LoginScreen = ({ navigation }) => {
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
   };
+
+  const loginWithApple = async () => {
+    try {
+      const appleCredential = await AppleAuthentication.signInAsync({
+        requestedScopes: [
+          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+          AppleAuthentication.AppleAuthenticationScope.EMAIL,
+        ],
+      });
+      const { identityToken } = appleCredential;
+
+      if(identityToken){
+        const provider = new OAuthProvider("apple.com");
+        provider.addScope("email");
+        provider.addScope("name");
+        const credential = provider.credential({ idToken: identityToken });
+        const response = await signInWithCredential(auth, credential);
+        console.log(response);
+
+        const newUserDocument = doc(usersRef, user.uid);
+        const userData = {
+          id: user.uid,
+          email: user.email,
+          firstName: user.name.split(" ")[0],
+          lastName: user.name.split(" ")[1],
+          phoneNumber: "",
+          city: "",
+          country: "",
+          profilePic: "",
+        };
+
+        await setDoc(newUserDocument, userData);
+
+       }
+    } catch (e) {
+      if (e.code === 'ERR_REQUEST_CANCELED') {
+      } else {
+        // handle other errors
+      }
+    }
+  }
 
   const [errorMsg, setErrorMsg] = useState(null);
 
@@ -171,13 +215,13 @@ export const LoginScreen = ({ navigation }) => {
           }}
         >
           <TouchableOpacity>
-            <Image source={require("../assets/icons/google.png")} />
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Image source={require("../assets/icons/apple.png")} />
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Image source={require("../assets/icons/facebook.png")} />
+          <AppleAuthentication.AppleAuthenticationButton
+              buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
+              buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
+              cornerRadius={10}
+              style={styles.button}
+              onPress={loginWithApple}
+            />
           </TouchableOpacity>
         </View>
       </View>
@@ -259,5 +303,9 @@ const styles = StyleSheet.create({
     backgroundColor: "black",
     marginHorizontal: 10,
     alignSelf: "center",
+  },
+  button: {
+    width: 200,
+    height: 44,
   },
 });
