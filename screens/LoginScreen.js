@@ -3,6 +3,7 @@ import { useNavigation } from "@react-navigation/native";
 import {
   Image,
   KeyboardAvoidingView,
+  Platform,
   StyleSheet,
   Text,
   TextInput,
@@ -17,7 +18,7 @@ import { OAuthProvider, signInWithCredential, signInWithEmailAndPassword } from 
 import { auth, usersRef } from "../config/firebase";
 import { useSelector, useDispatch } from "react-redux";
 import { Loading } from "../components/Loading";
-import { setUserLoading } from "../redux/slices/userSlice";
+import { setGuest, setUserLoading } from "../redux/slices/userSlice";
 import * as AppleAuthentication from "expo-apple-authentication"
 import { setDoc } from "firebase/firestore";
 
@@ -187,12 +188,26 @@ export const LoginScreen = ({ navigation }) => {
         {userLoading ? (
           <Loading />
         ) : (
+          <View style={{flex:1, justifyContent:"center"}}>
           <TouchableOpacity
             style={[styles.submitButton, { marginBottom: 10 }]}
             onPress={handleSignIn}
           >
             <Text style={styles.submitButtonText}>Login</Text>
           </TouchableOpacity>
+          {
+            Platform.OS === "ios" && 
+            <TouchableOpacity style={{justifyContent: 'center', flex:1, alignItems:"center"}}>
+              <AppleAuthentication.AppleAuthenticationButton
+                buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
+                buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
+                cornerRadius={10}
+                style={styles.button}
+                onPress={loginWithApple}
+              />
+            </TouchableOpacity>
+          }
+          </View>
         )}
         <View
           style={{
@@ -214,14 +229,10 @@ export const LoginScreen = ({ navigation }) => {
             marginTop: 20,
           }}
         >
-          <TouchableOpacity>
-          <AppleAuthentication.AppleAuthenticationButton
-              buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
-              buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
-              cornerRadius={10}
-              style={styles.button}
-              onPress={loginWithApple}
-            />
+          <TouchableOpacity style={{flex:1, alignItems:"center"}} onPress={() => {dispatch(setGuest(true))}}>
+            <Text style={{fontSize:18, color: colors.bg.secondary, textAlign:"center"}}>
+              Continue as guest
+            </Text>
           </TouchableOpacity>
         </View>
       </View>

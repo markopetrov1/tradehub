@@ -41,12 +41,17 @@ const createScreenOptions = ({ route }) => {
   };
 };
 
-export const AppNavigator = () => (
+export const AppNavigator = ({ guest }) => (
   <Tab.Navigator screenOptions={createScreenOptions}>
     <Tab.Screen name="Home" component={HomeNavigator} />
-    <Tab.Screen name="Saved" component={SavedNavigator} />
-    <Tab.Screen name="Add" component={AddItemScreen} />
-    <Tab.Screen name="Exchanges" component={ExchangesNavigator} />
+    {
+      !guest && 
+      <>
+        <Tab.Screen name="Saved" component={SavedNavigator} />
+        <Tab.Screen name="Add" component={AddItemScreen} />
+        <Tab.Screen name="Exchanges" component={ExchangesNavigator} />
+      </>
+    }
     <Tab.Screen name="Profile" component={ProfileNavigator} />
   </Tab.Navigator>
 );

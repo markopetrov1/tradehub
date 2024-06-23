@@ -3,12 +3,14 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { colors } from "../themes/colors";
 import { AntDesign } from "@expo/vector-icons";
 import { BackButton } from "./BackButton";
+import { useSelector } from "react-redux";
 
 export const CustomHeader = ({ title, back, chat }) => {
+  const { user, guest } = useSelector((state) => state.user);
   const navigation = useNavigation();
 
   return (
-    <View style={styles.headerWrapper}>
+    <View style={[styles.headerWrapper]}>
       {back && <BackButton />}
       <Text
         style={[
@@ -18,7 +20,7 @@ export const CustomHeader = ({ title, back, chat }) => {
       >
         {title}
       </Text>
-      {chat && (
+      {chat && !guest && (
         <TouchableOpacity onPress={() => navigation.navigate("ChatScreen")}>
           <AntDesign name="message1" size={28} color="white" />
         </TouchableOpacity>

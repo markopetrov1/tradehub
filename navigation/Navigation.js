@@ -9,7 +9,7 @@ import { auth } from "../config/firebase";
 import { getCurrentUser } from "../utilities/auth";
 
 export const Navigation = () => {
-  const { user } = useSelector((state) => state.user);
+  const { user, guest } = useSelector((state) => state.user);
 
   const dispatch = useDispatch();
 
@@ -27,11 +27,12 @@ export const Navigation = () => {
         dispatch(setUser(null));
       }
     });
+
   }, []);
 
   return (
     <NavigationContainer>
-      {user !== null ? <AppNavigator /> : <LoginNavigator />}
+      {user !== null || guest !== false ? <AppNavigator guest={guest}/> : <LoginNavigator />}
     </NavigationContainer>
   );
 };

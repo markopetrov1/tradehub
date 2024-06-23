@@ -25,7 +25,7 @@ import { Loading } from "../components/Loading";
 export const ItemDetailScreen = ({ route, navigation }) => {
   const { item } = route.params;
   const { exchangeRestriction } = route.params;
-  const { user, favouriteItems, userItems, userExchanges } = useSelector(
+  const { user, guest, favouriteItems, userItems, userExchanges } = useSelector(
     (state) => state.user
   );
 
@@ -161,17 +161,20 @@ export const ItemDetailScreen = ({ route, navigation }) => {
         <Text style={{ fontWeight: "bold", color: "#FFF", fontSize: 32 }}>
           Details
         </Text>
-        <TouchableOpacity
+        {
+          !guest && 
+          <TouchableOpacity
           style={styles.starIconContainer}
           onPress={addToFavourites}
           disabled={isItemInFavourites()}
-        >
+          >
           <Ionicons
             name="star-sharp"
             size={40}
             color={isItemInFavourites() ? "yellow" : "white"}
           />
         </TouchableOpacity>
+        }
       </View>
       <ScrollView style={styles.inputContainer}>
         <View style={styles.inputSubContainer}>
@@ -242,7 +245,7 @@ export const ItemDetailScreen = ({ route, navigation }) => {
               </View>
             ))}
           </View>
-          {user.id != item.userId && !exchangeRestriction && (
+          {!guest && user.id != item.userId && !exchangeRestriction && (
             <TouchableOpacity
               onPress={toggleModal}
               style={styles.exchangeButton}

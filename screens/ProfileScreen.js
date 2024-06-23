@@ -13,14 +13,16 @@ import { auth } from "../config/firebase";
 import { BackButton } from "../components/BackButton";
 import { FontAwesome, FontAwesome5, MaterialIcons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import LottieView from "lottie-react-native";
 import { Loading } from "../components/Loading";
 import { FlatList } from "react-native-gesture-handler";
+import { setGuest } from "../redux/slices/userSlice";
 
 export const ProfileScreen = ({ navigation }) => {
-  const { user, userItems } = useSelector((state) => state.user);
+  const { user, userItems, guest } = useSelector((state) => state.user);
   const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch()
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -29,6 +31,10 @@ export const ProfileScreen = ({ navigation }) => {
   const handleCardPress = (item) => {
     navigation.navigate("ItemDetailScreen", { item });
   };
+
+  const handleLoginPress = () => {
+    dispatch(setGuest(false))
+  }
 
   const renderItem = ({ item }) => {
     return (
@@ -87,9 +93,12 @@ export const ProfileScreen = ({ navigation }) => {
   return (
     <View style={styles.mainContainer}>
       <View style={styles.logoutWrapper}>
-        <TouchableOpacity onPress={handleLogout}>
-          <MaterialIcons name="logout" size={30} color="white" />
-        </TouchableOpacity>
+        {
+          !guest &&
+          <TouchableOpacity onPress={handleLogout}>
+            <MaterialIcons name="logout" size={30} color="white" />
+          </TouchableOpacity>
+        }
       </View>
       <View style={styles.profileIconWrapper}>
         {loading && (
@@ -125,72 +134,93 @@ export const ProfileScreen = ({ navigation }) => {
             {user.firstName} {user.lastName}
           </Text>
         )}
-        <TouchableOpacity
-          style={{ paddingHorizontal: 120, paddingTop: 15 }}
-          onPress={() => {
-            navigation.navigate("EditProfileScreen");
-          }}
-        >
-          <Text style={styles.editProfileText}>Edit Profile</Text>
+        {guest && (
+          <Text style={styles.nameText}>
+            Guest
+          </Text>
+        )}
+        {
+          !guest && 
+          <TouchableOpacity
+            style={{ paddingHorizontal: 120, paddingTop: 15 }}
+            onPress={() => {
+              navigation.navigate("EditProfileScreen");
+            }}
+            >
+            <Text style={styles.editProfileText}>Edit Profile</Text>
         </TouchableOpacity>
+        }
       </View>
 
-      <View style={styles.contentContainer}>
-        {userItems.length > 0 ? (
-          <FlatList
-            showsVerticalScrollIndicator={false}
-            showsHorizontalScrollIndicator={false}
-            data={userItems}
-            renderItem={renderItem}
-          />
-        ) : (
-          <>
-            <View
+      <View style={[styles.contentContainer, {flex: guest ? 5 : 4}]}>
+
+  {!guest ? (
+    <>
+      {userItems.length > 0 ? (
+        <FlatList
+          showsVerticalScrollIndicator={false}
+          showsHorizontalScrollIndicator={false}
+          data={userItems}
+          renderItem={renderItem}
+        />
+      ) : (
+        <>
+          <View
+            style={{
+              alignSelf: "center",
+              justifyContent: "flex-end",
+              flex: 1,
+              paddingTop: 50,
+            }}
+          >
+            <Text
               style={{
-                alignSelf: "center",
-                justifyContent: "flex-end",
-                flex: 1,
-                paddingTop: 50,
+                fontSize: 22,
+                backgroundColor: colors.bg.secondary,
+                color: "white",
+                padding: 10,
+                borderRadius: 10,
+                overflow: "hidden",
+                marginBottom: Platform.OS === "android" ? 20 : 0,
               }}
             >
-              <Text
-                style={{
-                  fontSize: 22,
-                  backgroundColor: colors.bg.secondary,
-                  color: "white",
-                  padding: 10,
-                  borderRadius: 10,
-                  overflow: "hidden",
-                  marginBottom: Platform.OS === "android" ? 20 : 0,
-                }}
-              >
-                No items yet
-              </Text>
-            </View>
-            <View
+              No items yet
+            </Text>
+          </View>
+          <View
+            style={{
+              flex: 1,
+              flexDirection: "row",
+              justifyContent: "center",
+            }}
+          >
+            <LottieView
               style={{
-                flex: 1,
-                flexDirection: "row",
-                justifyContent: "center",
+                width: 75,
+                height: 150,
+                alignSelf: "flex-end",
+                marginBottom: 10,
+                transform: [{ rotate: "15deg" }],
               }}
-            >
-              <LottieView
-                style={{
-                  width: 75,
-                  height: 150,
-                  alignSelf: "flex-end",
-                  marginBottom: 10,
-                  transform: [{ rotate: "15deg" }],
-                }}
-                key="animation"
-                resizeMode="cover"
-                autoPlay
-                source={require("../assets/animations/arrow-lottie.json")}
-              />
-            </View>
-          </>
-        )}
-      </View>
+              key="animation"
+              resizeMode="cover"
+              autoPlay
+              source={require("../assets/animations/arrow-lottie.json")}
+            />
+          </View>
+        </>
+      )}
+    </>
+  ) : (
+    <View style={styles.guestContainer}>
+      <Text style={styles.guestText}>Join Tradehub to make exchanges and unlock full features!</Text>
+      <TouchableOpacity style={styles.loginButton} onPress={handleLoginPress}>
+        <Text style={styles.loginButtonText}>Join</Text>
+      </TouchableOpacity>
+    </View>
+  )}
+</View>
+
     </View>
   );
 };
@@ -205,7 +235,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bg.inverse,
     borderTopLeftRadius: 60,
     borderTopRightRadius: 60,
-    flex: 4,
     alignItems: "center",
     paddingTop: 30,
   },
@@ -257,5 +286,27 @@ const styles = StyleSheet.create({
     width: "100%",
     height: 190,
     overflow: "hidden",
+  },
+  guestContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  guestText: {
+    fontSize: 20,
+    marginBottom: 20,
+    textAlign: 'center',
+    color: '#3b3b3b',
+    paddingHorizontal: 20
+  },
+  loginButton: {
+    backgroundColor: colors.bg.secondary, 
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+  },
+  loginButtonText: {
+    color: 'white',
+    fontSize: 18,
   },
 });

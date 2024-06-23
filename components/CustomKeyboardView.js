@@ -11,7 +11,7 @@ export const CustomKeyboardView = ({children, inChat}) => {
 
     return(
         <KeyboardAvoidingView
-        behavior={ios ? "padding" : "height"}
+        behavior={ios ? "padding" : null}
         style={{flex: 1}}
         {...kavConfig}
         >
