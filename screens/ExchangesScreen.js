@@ -26,6 +26,7 @@ import {
   matchedUsersRef,
 } from "../config/firebase";
 import {
+  Timestamp,
   addDoc,
   deleteDoc,
   doc,
@@ -37,6 +38,7 @@ import {
 } from "firebase/firestore";
 import { AntDesign } from "@expo/vector-icons";
 import { CustomHeader } from "../components/Header";
+import { current } from "@reduxjs/toolkit";
 
 export const ExchangesScreen = ({ navigation }) => {
   const { user, userExchanges, matchedUsers } = useSelector(
@@ -58,7 +60,7 @@ export const ExchangesScreen = ({ navigation }) => {
       dispatch(setMatchedUsers([...matchedUsers, data]));
 
       const updatedExchanges = userExchanges.map((exchange) =>
-        exchange === item ? { ...exchange, status: "SUCCESS" } : exchange
+        exchange === item ? { ...exchange, status: "SUCCESS", acceptedAt: Timestamp.fromDate(new Date()).toDate().toDateString()} : exchange
       );
       dispatch(setUserExchanges(updatedExchanges));
 
@@ -83,6 +85,10 @@ export const ExchangesScreen = ({ navigation }) => {
 
       const exchangeDoc = doc(exchangesRef, item.exchangeId);
 
+      Alert.alert(
+        "Exchange denied!",
+        `The exchange invitation from ${item.senderItemUserFirstName} ${item.senderItemUserLastName} was denied.`
+      );
       await deleteDoc(exchangeDoc.ref);
     } catch (error) {
       console.log("Error removing exchange item:", error);
@@ -285,7 +291,7 @@ export const ExchangesScreen = ({ navigation }) => {
                       textAlign: "center",
                     }}
                   >
-                    Confirm
+                    Accept
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -305,7 +311,7 @@ export const ExchangesScreen = ({ navigation }) => {
                       textAlign: "center",
                     }}
                   >
-                    Remove
+                    Decline
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -425,16 +431,127 @@ export const ExchangesScreen = ({ navigation }) => {
     return (
       <FlatList
         data={currentExchanges}
-        renderItem={(item) => {
+        style={{ marginTop: 30 }}
+        renderItem={({ item }) => {
+          const isSender = item.senderItemUserId === user.userId;
+          const otherUser = isSender ? 'receiver' : 'sender';
+  
           return (
-            <View>
-              <Text>asdasda</Text>
+            <View
+              style={{
+                margin: 10,
+                backgroundColor: "#f3f3f3",
+                padding: 10,
+                borderRadius: 10,
+              }}
+            >
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                }}
+              >
+                {item[`${otherUser}ItemUserProfilePic`] ? (
+                  <Image
+                    source={{ uri: item[`${otherUser}ItemUserProfilePic`] }}
+                    style={{ borderRadius: 50, width: 35, height: 35 }}
+                  />
+                ) : (
+                  <FontAwesome name="user-circle" size={35} color="black" />
+                )}
+                <Text
+                  style={{
+                    marginLeft: 5,
+                    padding: 10,
+                    width: 270,
+                  }}
+                >
+                  You have exchanged items with{" "}
+                  {item[`${otherUser}ItemUserFirstName`]}{" "}
+                  {item[`${otherUser}ItemUserLastName`]} on{" "}
+                  {new Date(item.acceptedAt).toLocaleDateString()}.
+                </Text>
+              </View>
+              <View
+                style={{
+                  padding: 15,
+                  flexDirection: "row",
+                  justifyContent: "space-evenly",
+                  alignItems: "center",
+                }}
+              >
+                <TouchableOpacity
+                  onPress={() => {
+                    handleCardPress(item, otherUser);
+                  }}
+                  style={{ alignItems: "center" }}
+                >
+                  <Image
+                    source={{ uri: item[`${isSender ? 'sender' : 'receiver'}ItemItemImage`] }}
+                    style={{
+                      width: 100,
+                      height: 70,
+                      borderRadius: 10,
+                      marginBottom: 10,
+                    }}
+                  />
+                  <View style={{ height: 40 }}>
+                    <Text
+                      style={{ fontSize: 15, textAlign: "center", width: 100 }}
+                      numberOfLines={2}
+                    >
+                      {item[`${isSender ? 'sender' : 'receiver'}ItemTitle`]}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+                <FontAwesome
+                  name="exchange"
+                  style={{ alignSelf: "flex-start", marginTop: 25 }}
+                  size={24}
+                  color="gray"
+                />
+                <TouchableOpacity
+                  onPress={() => {
+                    handleCardPress(item, isSender ? 'receiver' : 'sender');
+                  }}
+                  style={{ alignItems: "center" }}
+                >
+                  <Image
+                    source={{ uri: item[`${otherUser}ItemItemImage`] }}
+                    style={{
+                      width: 100,
+                      height: 70,
+                      borderRadius: 10,
+                      marginBottom: 10,
+                    }}
+                  />
+                  <View style={{ height: 40 }}>
+                    <Text
+                      style={{ fontSize: 15, textAlign: "center", width: 100 }}
+                      numberOfLines={2}
+                    >
+                      {item[`${isSender ? 'receiver' : 'sender'}ItemTitle`]}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+              <View
+                style={{
+                  paddingTop: 10,
+                  alignItems: "center",
+                }}
+              >
+                <Text style={{ color: "gray" }}>
+                  Exchanged on {new Date(item.acceptedAt).toLocaleDateString()}
+                </Text>
+              </View>
             </View>
           );
         }}
       />
     );
   };
+  
 
   return (
     <View style={styles.mainContainer}>
