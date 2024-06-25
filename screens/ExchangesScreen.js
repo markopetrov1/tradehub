@@ -60,7 +60,7 @@ export const ExchangesScreen = ({ navigation }) => {
       dispatch(setMatchedUsers([...matchedUsers, data]));
 
       const updatedExchanges = userExchanges.map((exchange) =>
-        exchange === item ? { ...exchange, status: "SUCCESS", acceptedAt: Timestamp.fromDate(new Date()).toDate().toDateString()} : exchange
+        exchange.exchangeId === item.exchangeId ? { ...exchange, status: "SUCCESS", acceptedAt: new Date().toDateString()} : exchange
       );
       dispatch(setUserExchanges(updatedExchanges));
 
@@ -430,7 +430,7 @@ export const ExchangesScreen = ({ navigation }) => {
   const renderExchangesHistory = () => {
     return (
       <FlatList
-        data={currentExchanges}
+        data={currentExchanges.sort((a, b) => new Date(b.acceptedAt) - new Date(a.acceptedAt))}
         style={{ marginTop: 30 }}
         renderItem={({ item }) => {
           const isSender = item.senderItemUserId === user.userId;
